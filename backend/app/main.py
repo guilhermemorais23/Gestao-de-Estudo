@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.connection import engine, Base
-import models.user_table
+from models.user_table import EstudoTable, UserTable
 
 
 

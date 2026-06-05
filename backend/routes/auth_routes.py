@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario
-from models.user_table import UserTable
+from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario,CriarEstudo
+from models.user_table import UserTable, EstudoTable
 from database.connection import get_db
 
 # Nova importacaoo da pasta utils
@@ -91,3 +91,22 @@ def deletar_usuario(usuario_id: int, db:Session=Depends(get_db)):
     db.commit()
 
     return {"message": "Usuário deletado com sucesso do sistema!"}
+
+@router.post("/usuario/{usuario_id}/estudo")
+def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get_db)):
+    novo_estudo = EstudoTable(
+        usuario_id = usuario_id,
+        materia = dados.materia,
+        tempo_minutos = dados.tempo_minutos
+    )
+
+    db.add(novo_estudo)
+    db.commit()
+    db.refresh(novo_estudo)
+
+    return{
+        "message": "Sessao de estudo registrada com sucesso!",
+        "materia": novo_estudo.materia,
+        "tempo.minutos":novo_estudo.tempo_minutos,
+        "data": novo_estudo.data
+    }
