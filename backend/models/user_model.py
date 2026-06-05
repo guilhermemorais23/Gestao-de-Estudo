@@ -10,5 +10,9 @@ class LoginUsuario(BaseModel):
     senha: str
 
 class AtualizarUsuario(BaseModel):
-    name:str
+    name: str
     email: EmailStr
+
+class CriarEstudo(BaseModel):
+    materia: str
+    tempo_minutos: int
