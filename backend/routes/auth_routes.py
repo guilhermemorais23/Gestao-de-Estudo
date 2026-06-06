@@ -110,3 +110,8 @@ def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get
         "tempo.minutos":novo_estudo.tempo_minutos,
         "data": novo_estudo.data
     }
+
+@router.get("/usuario/{usuario_id}/estudos")
+def listar_estudos(usuario_id = int, db: Session = Depends(get_db)):
+    estudos = db.query(EstudoTable).filter(EstudoTable.usuario_id ==usuario_id).all()
+    return estudos
