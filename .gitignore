@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+backend/banco.db
+frontend/node_modules/
+frontend/dist/
+.env
