@@ -55,7 +55,7 @@ function Dashboard() {
         
         if (pausaInput && parseInt(pausaInput) > 0) {
           // Se tiver tempo de pausa configurado, ativa o modo descanso
-          alert('🔔 Hora de pausar! Vá esticar as pernas e dar atenção para a namorada! ❤️')
+          alert('🔔 Hora de pausar!')
           setModoAtual('Pausa')
           setSegundosRestantes(parseInt(pausaInput) * 60)
           setTimerAtivo(true)
@@ -121,6 +121,30 @@ function Dashboard() {
     }
   }
 
+  const limparHistorico = async()=>{
+    const confirmar = window.confirm("Tem certeza que deseja apagar todo o historico de estudo?")
+    if(!confirmar)  return
+
+    try{
+      // 🚨 VEJA SE ESTÁ COM CRASE ( ` ) E NÃO ASPAS ( ' )
+      const resposta = await fetch(`http://localhost:8000/auth/usuario/${usuarioId}/estudos`, {
+      method: 'DELETE'
+})
+
+      if(resposta.ok){
+        alert("Historico apagado com sucesso")
+        setListaEstudos([])
+      }else{
+        const dadoserror = await resposta.json()
+        alert('Erro ${dadoserro.datail}|| "Não foi possível apagar o histórico.')
+      }
+    } catch(error){
+      console.error("Erro ao apagar historico", error)
+      alert('Erro de conexao com o servidor')
+    }
+    
+  }
+
   // Função para formatar segundos em MM:SS (Ex: 3600 segundos -> 60:00)
   const formatarTempo = (totalSegundos) => {
     const minutos = Math.floor(totalSegundos / 60)
@@ -140,7 +164,7 @@ function Dashboard() {
 
         {/* CARD 1: PERFIL DO USUÁRIO (Ocultado as outras funções para focar no Cronômetro) */}
         
-        {/* 🔥 CARD 2 TOTALMENTE NOVO: CRONÔMETRO POMODORO INTERATIVO */}
+        {/*  CARD 2 TOTALMENTE NOVO: CRONÔMETRO POMODORO INTERATIVO */}
         <div style={cardEstilo}>
           <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333', textAlign: 'center' }}>
             {timerAtivo ? `⏳ Modo atual: ${modoAtual}` : '⏱️ Configurar Sessão de Estudo'}
@@ -193,7 +217,32 @@ function Dashboard() {
 
         {/* CARD 3: HISTÓRICO DE ESTUDOS */}
         <div style={cardEstilo}>
-          <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>📊 Histórico de Estudos</h3>
+          {/* TÍTULO E BOTÃO ALINHADOS LADO A LADO */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h3 style={{ margin: 0, color: '#333' }}>📊 Histórico de Estudos</h3>
+            
+            {/* Só mostra o botão se a lista tiver algum item para apagar */}
+            {listaEstudos.length > 0 && (
+              <button 
+                onClick={limparHistorico} 
+                style={{ 
+                  backgroundColor: 'transparent', 
+                  color: '#dc3545', 
+                  border: '1px solid #dc3545', 
+                  borderRadius: '6px', 
+                  padding: '6px 12px', 
+                  cursor: 'pointer', 
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  transition: '0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#fff5f5'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                🗑️ Limpar Histórico
+              </button>
+            )}
+          </div>
           {listaEstudos.length === 0 ? (
             <p style={{ color: '#888', fontStyle: 'italic', textAlign: 'center' }}>Nenhum estudo registrado ainda.</p>
           ) : (

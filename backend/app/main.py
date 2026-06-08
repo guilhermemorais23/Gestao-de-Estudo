@@ -14,10 +14,10 @@ app = FastAPI(title="Minha API Profissional")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"], # ✨ Permite que o seu React acesse o Python
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["*"], # Permite todos os métodos (POST, GET, PUT, DELETE)
+    allow_headers=["*"], # Permite todos os cabeçalhos
 )
 
 app.include_router(auth_router, prefix="/auth", tags=["Autenticação"])
