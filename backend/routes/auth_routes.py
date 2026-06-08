@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime,date
 
 from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario,CriarEstudo
 from models.user_table import UserTable, EstudoTable
@@ -99,7 +99,7 @@ def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get
         usuario_id = usuario_id,
         materia = dados.materia,
         tempo_minutos = dados.tempo_minutos,
-        data = datetime.now().strftime("%d/%m/%Y")
+        data = date.today()
     )
 
     db.add(novo_estudo)
@@ -109,11 +109,24 @@ def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get
     return{
         "message": "Sessao de estudo registrada com sucesso!",
         "materia": novo_estudo.materia,
-        "tempo.minutos":novo_estudo.tempo_minutos,
-        "data": novo_estudo.data
+        "tempo_minutos":novo_estudo.tempo_minutos,
+        "data": novo_estudo.data.strftime("%d/%m/%Y") if novo_estudo.data else None
     }
 
 @router.get("/usuario/{usuario_id}/estudos")
 def listar_estudos(usuario_id = int, db: Session = Depends(get_db)):
     estudos = db.query(EstudoTable).filter(EstudoTable.usuario_id ==usuario_id).all()
     return estudos
+
+@router.delete("/usuario/{usuario_id}/estudos")
+def apagar_Lista(usuario_id:int, db:Session = Depends(get_db)):
+    linha_apagadas = db.query(EstudoTable).filter(EstudoTable.usuario_id==usuario_id).delete(synchronize_session=False)
+
+    if not linha_apagadas:
+        raise HTTPException (status_code=404,detail= "usuario nao encontrdo")
+    
+    db.commit()
+
+    return{
+        "message": "Historico de estudo deletado com sucesso!"
+    }
