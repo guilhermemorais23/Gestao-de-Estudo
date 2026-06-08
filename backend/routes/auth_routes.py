@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario,CriarEstudo
 from models.user_table import UserTable, EstudoTable
@@ -11,7 +12,7 @@ from utils.hash import gerar_hash_senha, verificar_senha
 #Roteador
 router = APIRouter()
 
-@router.post("/registro")
+@router.post("/registrar")
 def register(user: RegistroUsuario, db: Session = Depends(get_db)):
     usuario_existente = db.query(UserTable).filter(UserTable.email == user.email).first()
     if usuario_existente:
@@ -97,7 +98,8 @@ def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get
     novo_estudo = EstudoTable(
         usuario_id = usuario_id,
         materia = dados.materia,
-        tempo_minutos = dados.tempo_minutos
+        tempo_minutos = dados.tempo_minutos,
+        data = datetime.now().strftime("%d/%m/%Y")
     )
 
     db.add(novo_estudo)
