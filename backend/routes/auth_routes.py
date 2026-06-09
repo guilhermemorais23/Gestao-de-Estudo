@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime,date
 
-from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario,CriarEstudo
-from models.user_table import UserTable, EstudoTable
+from models.user_model import RegistroUsuario, LoginUsuario, AtualizarUsuario,CriarEstudo,CriarCategoria
+from models.user_table import UserTable, EstudoTable, CategoriaTable
 from database.connection import get_db
 
 # Nova importacaoo da pasta utils
@@ -97,7 +97,7 @@ def deletar_usuario(usuario_id: int, db:Session=Depends(get_db)):
 def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get_db)):
     novo_estudo = EstudoTable(
         usuario_id = usuario_id,
-        materia = dados.materia,
+        categoria_id = dados.categoria_id,
         tempo_minutos = dados.tempo_minutos,
         data = date.today()
     )
@@ -108,13 +108,13 @@ def registrar_estudo(usuario_id: int, dados:CriarEstudo, db: Session=Depends(get
 
     return{
         "message": "Sessao de estudo registrada com sucesso!",
-        "materia": novo_estudo.materia,
+        "materia": novo_estudo.categoria.nome_categoria if novo_estudo.categoria else "sem categoria",
         "tempo_minutos":novo_estudo.tempo_minutos,
         "data": novo_estudo.data.strftime("%d/%m/%Y") if novo_estudo.data else None
     }
 
 @router.get("/usuario/{usuario_id}/estudos")
-def listar_estudos(usuario_id = int, db: Session = Depends(get_db)):
+def listar_estudos(usuario_id : int, db: Session = Depends(get_db)):
     estudos = db.query(EstudoTable).filter(EstudoTable.usuario_id ==usuario_id).all()
     return estudos
 
@@ -130,3 +130,30 @@ def apagar_Lista(usuario_id:int, db:Session = Depends(get_db)):
     return{
         "message": "Historico de estudo deletado com sucesso!"
     }
+
+@router.post("/usuario/{usuario_id}/categorias")
+def cadastrar_categoria(usuario_id:int, dados:CriarCategoria,db:Session=Depends(get_db)):
+    existe = db.query(CategoriaTable).filter(
+        CategoriaTable.usuario_id == usuario_id,
+        CategoriaTable.nome_categoria == dados.nome_categoria
+    ).first()
+
+
+    if existe:
+        raise HTTPException(status_code=400, detail="Voce ja cadastrou essa categoria")
+    
+    nova_categoria = CategoriaTable(
+        usuario_id = usuario_id,
+        nome_categoria = dados.nome_categoria
+    )
+
+    db.add(nova_categoria)
+    db.commit()
+    db.refresh(nova_categoria)
+
+    return {"message": "Categoria criada com sucesso","categoria": nova_categoria}
+
+@router.get("/usuario/{usuario_id}/categorias")
+def listar_categorias(usuario_id: int, db: Session = Depends(get_db)):
+    categorias = db.query(CategoriaTable).filter(CategoriaTable.usuario_id == usuario_id).all()
+    return categorias
