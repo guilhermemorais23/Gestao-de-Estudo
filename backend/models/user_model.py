@@ -14,5 +14,8 @@ class AtualizarUsuario(BaseModel):
     email: EmailStr
 
 class CriarEstudo(BaseModel):
-    materia: str
+    categoria_id: int
     tempo_minutos: int
+
+class CriarCategoria(BaseModel):
+    nome_categoria:str
