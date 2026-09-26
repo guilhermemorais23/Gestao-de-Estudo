@@ -28,6 +28,7 @@ class UsuarioOut(BaseModel):
     empresa: str | None
     whatsapp: str | None
     token_publico: str
+    meta_mensal: int | None = 4
     modelos: dict[str, Any]
 
     @field_validator("modelos", mode="before")
@@ -41,6 +42,7 @@ class ConfigIn(BaseModel):
     empresa: str | None = None
     whatsapp: str | None = None
     modelos: dict[str, dict[str, dict[str, str]]] | None = None
+    meta_mensal: int | None = Field(default=None, ge=1, le=100)
 
 
 class BuscaIn(BaseModel):
@@ -122,5 +124,22 @@ class BriefingOut(BaseModel):
     contato_nome: str
     contato_whatsapp: str
     respostas: dict[str, Any]
+    textos: dict[str, Any] | None = None
+    textos_modelo: str | None = None
     lido: bool
     criado_em: datetime
+
+
+class ServicoIn(BaseModel):
+    nome: str = Field(max_length=120)
+    descricao: str = Field(max_length=400)
+
+
+class TextosIn(BaseModel):
+    titulo: str = Field(max_length=200)
+    subtitulo: str = Field(max_length=300)
+    sobre: str = Field(max_length=1500)
+    servicos: list[ServicoIn] = Field(max_length=8)
+    diferenciais: list[str] = Field(max_length=5)
+    chamada_final: str = Field(max_length=300)
+    texto_botao: str = Field(max_length=60)

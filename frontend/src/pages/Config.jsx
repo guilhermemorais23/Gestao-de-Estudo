@@ -10,7 +10,7 @@ export default function Config() {
   const { usuario, setUsuario } = useOutletContext()
   const [form, setForm] = useState({
     nome: usuario.nome, empresa: usuario.empresa || '', whatsapp: usuario.whatsapp || '',
-    modelos: usuario.modelos,
+    modelos: usuario.modelos, meta_mensal: usuario.meta_mensal || 4,
   })
   const [aba, setAba] = useState('pt.descontraido')
   const [idiomaAba, tomAba] = aba.split('.')
@@ -45,6 +45,10 @@ export default function Config() {
           <label className="cresce">
             Seu WhatsApp (recebe os clientes)
             <input value={form.whatsapp} onChange={set('whatsapp')} placeholder="83 99999-9999" />
+          </label>
+          <label className="curto">
+            Meta de clientes por mês
+            <input type="number" min="1" max="100" value={form.meta_mensal} onChange={(e) => setForm({ ...form, meta_mensal: Number(e.target.value) })} />
           </label>
         </div>
         <h2>Mensagens de abordagem</h2>

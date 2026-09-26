@@ -36,6 +36,9 @@ export default function Leads() {
           <h1>Leads</h1>
           <p>Acompanhe cada empresa da primeira mensagem até o fechamento.</p>
         </div>
+        <p className="cabecalho-numero">
+          <b>{Object.entries(resumo).filter(([k]) => !k.startsWith('_')).reduce((s, [, v]) => s + v, 0)}</b> empresas na lista
+        </p>
         <button className="btn btn-secundario" onClick={() => setNovo({ nome: '', telefone: '', cidade: '', categoria: '' })}>
           <Plus size={16} /> Adicionar lead
         </button>

@@ -36,6 +36,7 @@ class UserTable(Base):
     empresa = Column(String(120), default="")
     whatsapp = Column(String(30), default="")
     token_publico = Column(String(32), unique=True, default=novo_token)
+    meta_mensal = Column(Integer, default=4)  # clientes por mês
     modelos = Column(Text, default=modelos_padrao)  # JSON: idioma -> tom -> passo -> texto
     criado_em = Column(DateTime, default=agora)
 
@@ -93,6 +94,8 @@ class BriefingTable(Base):
     contato_nome = Column(String(120), default="")
     contato_whatsapp = Column(String(30), default="")
     respostas = Column(Text, default="{}")  # JSON
+    textos = Column(Text, nullable=True)  # JSON com os textos da prévia (gerados por IA e revisados por você)
+    textos_modelo = Column(String(60), nullable=True)
     lido = Column(Boolean, default=False)
     criado_em = Column(DateTime, default=agora)
 

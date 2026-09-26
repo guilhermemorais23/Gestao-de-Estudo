@@ -32,26 +32,42 @@ export default function Login() {
 
   return (
     <div className="tela-login">
-      <form className="card login" onSubmit={enviar}>
-        <div className="marca grande">
+      <aside className="login-lado">
+        <div className="marca claro">
           <span className="marca-simbolo" aria-hidden="true" />
           Prospecta
         </div>
-        <p className="muted">Encontre empresas sem site e transforme em clientes.</p>
-        {DEMO && <p className="faixa-info caixa">Demonstração com dados de exemplo. É só clicar em Entrar.</p>}
-        {modo === 'registro' && (
-          <label>Nome<input value={form.nome} onChange={set('nome')} required minLength={2} /></label>
-        )}
-        <label>E-mail<input type="email" value={form.email} onChange={set('email')} required /></label>
-        <label>Senha<input type="password" value={form.senha} onChange={set('senha')} required minLength={6} /></label>
-        {erro && <p className="erro">{erro}</p>}
-        <button className="btn" disabled={carregando}>
-          {carregando ? 'Entrando' : modo === 'login' ? 'Entrar' : 'Criar conta'}
-        </button>
-        <button type="button" className="btn-texto" onClick={() => setModo(modo === 'login' ? 'registro' : 'login')}>
-          {modo === 'login' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta'}
-        </button>
-      </form>
+        <div className="login-frase">
+          <p className="login-titulo">Todo negócio do bairro merece ser encontrado no Google.</p>
+          <p>Ache as empresas de João Pessoa que ainda não têm site, mande a primeira mensagem e acompanhe cada conversa até o fechamento.</p>
+        </div>
+        <ul className="login-passos" aria-label="Como funciona">
+          <li><b>Buscar</b><span>empresas sem site no Maps</span></li>
+          <li><b>Abordar</b><span>pelo WhatsApp, com mensagem pronta</span></li>
+          <li><b>Mostrar</b><span>uma prévia do site feita com as respostas do cliente</span></li>
+        </ul>
+      </aside>
+      <main className="login-form-area">
+        <form className="login" onSubmit={enviar}>
+          <div>
+            <h1>{modo === 'login' ? 'Entrar' : 'Criar conta'}</h1>
+            <p className="muted">{modo === 'login' ? 'Use o e-mail e a senha da sua conta.' : 'O primeiro cadastro vira a conta administradora.'}</p>
+          </div>
+          {DEMO && <p className="faixa-info caixa">Demonstração com dados de exemplo. É só clicar em Entrar.</p>}
+          {modo === 'registro' && (
+            <label htmlFor="nome">Nome<input id="nome" value={form.nome} onChange={set('nome')} required minLength={2} /></label>
+          )}
+          <label htmlFor="email">E-mail<input id="email" type="email" value={form.email} onChange={set('email')} required /></label>
+          <label htmlFor="senha">Senha<input id="senha" type="password" value={form.senha} onChange={set('senha')} required minLength={6} /></label>
+          {erro && <p className="erro">{erro}</p>}
+          <button className="btn grande" disabled={carregando}>
+            {carregando ? 'Entrando' : modo === 'login' ? 'Entrar' : 'Criar conta'}
+          </button>
+          <button type="button" className="btn-texto" onClick={() => setModo(modo === 'login' ? 'registro' : 'login')}>
+            {modo === 'login' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta'}
+          </button>
+        </form>
+      </main>
     </div>
   )
 }

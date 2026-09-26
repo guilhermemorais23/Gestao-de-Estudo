@@ -101,6 +101,12 @@ def resumo(user: UserTable = Depends(usuario_atual), db: Session = Depends(get_d
     )
     resultado = {status: qtd for status, qtd in linhas}
     resultado["_pendentes"] = _pendentes(db.query(LeadTable).filter(LeadTable.user_id == user.id)).count()
+    inicio_mes = _agora().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    resultado["_fechados_mes"] = (
+        db.query(LeadTable)
+        .filter(LeadTable.user_id == user.id, LeadTable.status == "fechado", LeadTable.atualizado_em >= inicio_mes)
+        .count()
+    )
     return resultado
 
 

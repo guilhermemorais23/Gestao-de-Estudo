@@ -1,11 +1,13 @@
 import json
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from models.tables import BriefingTable, LeadTable, UserTable
-from schemas.schemas import BriefingIn, BriefingOut
+from schemas.schemas import BriefingIn, BriefingOut, TextosIn
+from services import ia_service
 from utils.jwt import usuario_atual
 from utils.telefone import so_digitos
 
@@ -17,7 +19,7 @@ def _para_out(b: BriefingTable) -> BriefingOut:
     return BriefingOut(
         id=b.id, lead_id=b.lead_id, token=b.token, empresa=b.empresa or "", contato_nome=b.contato_nome or "",
         contato_whatsapp=b.contato_whatsapp or "", respostas=json.loads(b.respostas or "{}"), lido=b.lido,
-        criado_em=b.criado_em,
+        criado_em=b.criado_em, textos=json.loads(b.textos) if b.textos else None, textos_modelo=b.textos_modelo,
     )
 
 
@@ -35,6 +37,43 @@ def marcar_lido(briefing_id: int, user: UserTable = Depends(usuario_atual), db: 
     b.lido = True
     db.commit()
     return {"ok": True}
+
+
+def _meu_briefing(briefing_id: int, user: UserTable, db: Session) -> BriefingTable:
+    b = db.query(BriefingTable).filter_by(id=briefing_id, user_id=user.id).first()
+    if b is None:
+        raise HTTPException(status_code=404, detail="Resposta não encontrada")
+    return b
+
+
+@router.get("/ia")
+def info_ia(user: UserTable = Depends(usuario_atual)):
+    return {
+        "configurada": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "modelo": ia_service.modelo_configurado(),
+        "modelos": ia_service.MODELOS_IA,
+    }
+
+
+@router.post("/{briefing_id}/gerar-textos", response_model=BriefingOut)
+def gerar_textos(briefing_id: int, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    b = _meu_briefing(briefing_id, user, db)
+    respostas = json.loads(b.respostas or "{}")
+    textos, modelo = ia_service.gerar_textos_landing(respostas, respostas.get("_idioma", "pt"))
+    b.textos = json.dumps(textos, ensure_ascii=False)
+    b.textos_modelo = modelo
+    db.commit()
+    db.refresh(b)
+    return _para_out(b)
+
+
+@router.put("/{briefing_id}/textos", response_model=BriefingOut)
+def salvar_textos(briefing_id: int, dados: TextosIn, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    b = _meu_briefing(briefing_id, user, db)
+    b.textos = json.dumps(dados.model_dump(), ensure_ascii=False)
+    db.commit()
+    db.refresh(b)
+    return _para_out(b)
 
 
 def _resolver_token(token: str, db: Session) -> tuple[UserTable, LeadTable | None]:

@@ -9,7 +9,7 @@ const agora = () => new Date().toISOString().replace('Z', '')
 
 const usuario = {
   id: 1, nome: 'Guilherme', email: 'demo@prospecta.pb', empresa: 'GM Sites', whatsapp: '5583999990000',
-  token_publico: 'geral', modelos: structuredClone(MODELOS),
+  token_publico: 'geral', meta_mensal: 4, modelos: structuredClone(MODELOS),
 }
 
 const diasAtras = (n) => new Date(Date.now() - n * 86400000).toISOString().replace('Z', '')
@@ -100,6 +100,27 @@ function simularBusca(corpo) {
   }
 }
 
+// Na demonstração não há IA de verdade: devolve um texto de exemplo montado com as respostas
+function textosExemplo(b) {
+  const r = b.respostas
+  const servicos = (r.servicos || '').split('\n').map((s) => s.trim()).filter(Boolean)
+  const descricoes = {
+    'Revisão completa': 'Checamos motor, freios, suspensão e fluidos antes de você pegar a estrada.',
+    'Troca de óleo': 'Óleo e filtro trocados na hora, com o carro pronto em poucos minutos.',
+    'Freios e suspensão': 'Diagnóstico e troca de peças com orçamento antes de qualquer serviço.',
+    'Ar-condicionado automotivo': 'Limpeza, recarga de gás e conserto para o calor de João Pessoa.',
+  }
+  return {
+    titulo: `Seu carro em boas mãos no ${(r.endereco || 'bairro').split(',')[1]?.trim() || 'bairro'}`,
+    subtitulo: `${r.diferencial || 'Atendimento direto com quem entende'}.`,
+    sobre: `A ${b.empresa} é uma ${String(r.segmento || 'empresa').toLowerCase()} de bairro, com atendimento direto e sem enrolação. Você manda uma mensagem, explica o problema e recebe o orçamento pelo WhatsApp.`,
+    servicos: (servicos.length ? servicos : ['Atendimento']).map((nome) => ({ nome, descricao: descricoes[nome] || 'Feito com cuidado e prazo combinado.' })),
+    diferenciais: ['Orçamento pelo WhatsApp antes de começar', 'Atendimento com hora marcada', 'Fica no Rangel, fácil de chegar'],
+    chamada_final: 'Mande uma mensagem e receba seu orçamento ainda hoje.',
+    texto_botao: 'Pedir orçamento',
+  }
+}
+
 function pendente(l) {
   if (l.respondeu || ['fechado', 'perdido'].includes(l.status) || !l.ultimo_envio_em) return false
   const dias = (Date.now() - new Date(l.ultimo_envio_em + 'Z').getTime()) / 86400000
@@ -144,7 +165,7 @@ export async function mockApi(caminho, method, body) {
   if (rota === '/leads/buscar') return simularBusca(body)
   if (rota === '/leads/resumo') {
     const r = leads.reduce((acc, l) => ({ ...acc, [l.status]: (acc[l.status] || 0) + 1 }), {})
-    return { ...r, _pendentes: leads.filter(pendente).length }
+    return { ...r, _pendentes: leads.filter(pendente).length, _fechados_mes: r.fechado || 0 }
   }
   if (rota === '/leads/metricas') {
     const contatados = leads.filter((l) => l.passo > 0)
@@ -203,6 +224,19 @@ export async function mockApi(caminho, method, body) {
   }
 
   if (rota === '/briefings') return briefings
+  if (rota === '/briefings/ia') return { configurada: true, modelo: 'claude-haiku-4-5', modelos: { 'claude-haiku-4-5': 'Claude Haiku 4.5' } }
+  if (partes[0] === 'briefings' && partes[2] === 'gerar-textos') {
+    await espera(1400)
+    const b = briefings.find((x) => x.id === Number(partes[1]))
+    b.textos = textosExemplo(b)
+    b.textos_modelo = 'claude-haiku-4-5'
+    return { ...b }
+  }
+  if (partes[0] === 'briefings' && partes[2] === 'textos') {
+    const b = briefings.find((x) => x.id === Number(partes[1]))
+    b.textos = body
+    return { ...b }
+  }
   if (partes[0] === 'briefings') {
     briefings = briefings.map((b) => (b.id === Number(partes[1]) ? { ...b, lido: true } : b))
     return { ok: true }

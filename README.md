@@ -15,11 +15,14 @@ para fechar a venda de sites e sistemas.
    sorteado** (formal ou descontraído) para comparar qual converte mais. Tudo abre no WhatsApp via `wa.me`
    e **QR code**, e cada envio fica registrado. O painel avisa quem está esperando retorno.
 4. **Questionário** — o cliente responde pelo link (`/q/<token>`); o lead muda para "respondeu".
-5. **Prévia** — as respostas viram uma landing page (`/lp/<token>`) com cores, serviços, mapa e botão
+5. **Textos com IA** — em Respostas, o botão "Gerar textos com IA" usa o Claude Haiku 4.5 para escrever
+   título, serviços, diferenciais e chamada da prévia a partir do questionário. Você revisa e salva.
+   Para outro modelo no futuro, inclua em `MODELOS_IA` (`backend/services/ia_service.py`) e use `IA_MODELO`.
+6. **Prévia** — as respostas viram uma landing page (`/lp/<token>`) com cores, serviços, mapa e botão
    de WhatsApp. O cliente é levado ao **seu** WhatsApp com o resumo das respostas.
-6. **Resultados** — funil por tom (quantos responderam, fizeram o questionário, fecharam), em qual
+7. **Resultados** — funil por tom (quantos responderam, fizeram o questionário, fecharam), em qual
    mensagem as pessoas respondem ou param, e uma calculadora de metas (preço, clientes/mês, mensalidade).
-7. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, com mensagem em inglês ou espanhol.
+8. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, com mensagem em inglês ou espanhol.
 
 ## Rodando
 
@@ -47,6 +50,11 @@ para liberar mais, use `PERMITIR_CADASTRO=1`). Depois configure seu WhatsApp em 
 1. https://console.cloud.google.com → crie um projeto → ative **Places API (New)**.
 2. Crie uma chave em *APIs e serviços → Credenciais* e restrinja à Places API.
 3. Cole em `backend/.env` → `GOOGLE_MAPS_API_KEY=...`
+
+### Chave da Anthropic (textos com IA)
+
+Crie em https://console.anthropic.com e cole em `backend/.env` → `ANTHROPIC_API_KEY=...`.
+Cada texto de prévia custa uma fração de centavo de dólar com o Haiku 4.5.
 
 O Google cobra por busca (há cota mensal gratuita). Cada página traz até 20 empresas.
 Sem chave, use a fonte **OpenStreetMap** (grátis, mas com menos empresas cadastradas).

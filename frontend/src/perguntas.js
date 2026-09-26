@@ -28,6 +28,13 @@ export const TEXTOS = {
   },
 }
 
+// Seções do questionário, na ordem em que aparecem
+export const SECOES = [
+  { id: 'empresa', pt: 'Sobre a empresa', en: 'About the business', es: 'Sobre la empresa', perguntas: ['empresa', 'contato_nome', 'contato_whatsapp', 'segmento', 'servicos', 'diferencial'] },
+  { id: 'site', pt: 'O site', en: 'The website', es: 'El sitio', perguntas: ['objetivo', 'recursos', 'tem_logo', 'cores', 'instagram'] },
+  { id: 'local', pt: 'Onde e quando', en: 'Where and when', es: 'Dónde y cuándo', perguntas: ['endereco', 'horario', 'prazo', 'investimento'] },
+]
+
 // tipo: texto | area | unica | multipla
 export const PERGUNTAS = [
   { id: 'empresa', tipo: 'texto', obrigatoria: true,
