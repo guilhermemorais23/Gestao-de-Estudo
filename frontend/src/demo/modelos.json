@@ -1,7 +1,7 @@
 {
   "pt": {
     "formal": {
-      "abertura": "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites aqui em João Pessoa. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não têm um site. Posso enviar uma sugestão de como ficaria? Sem compromisso.",
+      "abertura": "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites {onde_atuo}. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não têm um site. Posso enviar uma sugestão de como ficaria? Sem compromisso.",
       "previa": "Obrigado pelo retorno! Montei uma prévia de como ficaria o site da {empresa}, usando as fotos e as avaliações que vocês já têm no Google: {link_previa}\n\nDá uma olhada com calma. Se quiser, ajusto cores, textos e serviços do jeito de vocês.",
       "proposta": "Segue a proposta para o site da {empresa}, com os pacotes, o prazo e a forma de pagamento: {link_proposta}\n\nQualquer dúvida, é só me chamar por aqui.",
       "questionario": "Obrigado pelo retorno! Para montar a prévia, preciso de algumas informações. Leva cerca de 2 minutos: {link}\n\nAssim que responder, envio a prévia no mesmo dia.",
@@ -9,7 +9,7 @@
       "retorno2": "{saudacao}! Para não incomodar, esta é minha última mensagem. Se em algum momento quiserem um site, fico à disposição. Sucesso!"
     },
     "descontraido": {
-      "abertura": "Oi, tudo bem? Sou o {meu_nome}, faço sites aqui em João Pessoa. Vi a {empresa} no Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês direto. Posso te mandar uma ideia de como ficaria? Sem compromisso.",
+      "abertura": "Oi, tudo bem? Sou o {meu_nome}, faço sites {onde_atuo}. Vi a {empresa} no Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês direto. Posso te mandar uma ideia de como ficaria? Sem compromisso.",
       "previa": "Massa! Já montei uma prévia do site de vocês com as fotos e as avaliações do Google, dá uma olhada: {link_previa}\n\nSe quiser mudar alguma coisa, me fala que eu ajusto.",
       "proposta": "Show! Aqui tá a proposta com os pacotes, o prazo e como fica o pagamento: {link_proposta}\n\nQualquer dúvida me chama.",
       "questionario": "Massa! Responde essas perguntinhas aqui, leva uns 2 minutos, que eu monto a prévia do site de vocês e te mando ainda hoje: {link}",

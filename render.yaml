@@ -1,0 +1,23 @@
+# Render Blueprint: cria o serviço com disco para o banco SQLite.
+# No painel do Render: New > Blueprint > escolha este repositório.
+services:
+  - type: web
+    name: prospecta
+    runtime: docker
+    plan: starter        # o plano grátis não tem disco: o banco seria apagado a cada deploy
+    healthCheckPath: /api/saude
+    disk:
+      name: dados
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: IA_MODELO
+        value: claude-haiku-4-5
+      - key: PERMITIR_CADASTRO
+        value: "0"

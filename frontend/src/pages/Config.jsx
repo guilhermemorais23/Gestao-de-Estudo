@@ -65,7 +65,8 @@ export default function Config() {
         <h2>Mensagens de abordagem</h2>
         <p className="muted">
           Cada lead recebe um tom sorteado para você comparar em Resultados qual funciona melhor. Campos que você
-          pode usar: <code>{'{saudacao}'}</code>, <code>{'{empresa}'}</code>, <code>{'{meu_nome}'}</code>,{' '}
+          pode usar: <code>{'{onde_atuo}'}</code> (vira "aqui em João Pessoa" ou "em João Pessoa e atendo toda a
+          Paraíba", conforme a cidade da empresa), <code>{'{saudacao}'}</code>, <code>{'{empresa}'}</code>, <code>{'{meu_nome}'}</code>,{' '}
           <code>{'{minha_empresa}'}</code>, <code>{'{categoria}'}</code>, <code>{'{nota_texto}'}</code> (nota e
           avaliações do Google) e <code>{'{link}'}</code> (questionário).
         </p>

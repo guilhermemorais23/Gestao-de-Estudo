@@ -3,9 +3,14 @@ import { Search, SlidersHorizontal } from 'lucide-react'
 import { api } from '../api'
 import TabelaLeads from '../components/TabelaLeads'
 
+// Maiores cidades da Paraíba, começando pela Grande João Pessoa
 const CIDADES_PB = [
-  'João Pessoa - PB', 'Cabedelo - PB', 'Bayeux - PB', 'Santa Rita - PB', 'Conde - PB',
-  'Campina Grande - PB', 'Patos - PB', 'Sousa - PB', 'Cajazeiras - PB', 'Guarabira - PB',
+  'João Pessoa - PB', 'Cabedelo - PB', 'Bayeux - PB', 'Santa Rita - PB', 'Conde - PB', 'Lucena - PB',
+  'Campina Grande - PB', 'Patos - PB', 'Sousa - PB', 'Cajazeiras - PB', 'Guarabira - PB', 'Sapé - PB',
+  'Queimadas - PB', 'Mamanguape - PB', 'Esperança - PB', 'Monteiro - PB', 'Pombal - PB', 'São Bento - PB',
+  'Catolé do Rocha - PB', 'Itabaiana - PB', 'Pedras de Fogo - PB', 'Alhandra - PB', 'Rio Tinto - PB',
+  'Bananeiras - PB', 'Areia - PB', 'Solânea - PB', 'Picuí - PB', 'Princesa Isabel - PB', 'Itaporanga - PB',
+  'Lagoa Seca - PB', 'Alagoa Grande - PB', 'Caaporã - PB',
 ]
 const BAIRROS_JP = [
   'Manaíra', 'Tambaú', 'Cabo Branco', 'Bessa', 'Aeroclube', 'Jardim Oceania', 'Altiplano', 'Bancários',
@@ -73,7 +78,7 @@ export default function Prospectar({ regiao }) {
         <p>
           {exterior
             ? 'Qualquer cidade do Brasil ou de outro país. A mensagem de abordagem sai no idioma que você escolher.'
-            : 'Encontre no Google Maps os negócios da Paraíba que ainda não têm site.'}
+            : 'Encontre no Google Maps os negócios da Paraíba que ainda não têm site. Comece por João Pessoa e expanda para as outras cidades.'}
         </p>
       </header>
 
@@ -88,7 +93,7 @@ export default function Prospectar({ regiao }) {
             {exterior ? (
               <input value={form.cidade} onChange={set('cidade')} placeholder="Lisboa, Portugal" required />
             ) : (
-              <input list="cidades-pb" value={form.cidade} onChange={set('cidade')} required />
+              <input list="cidades-pb" value={form.cidade} onChange={set('cidade')} placeholder="Digite ou escolha a cidade" required />
             )}
             <datalist id="cidades-pb">{CIDADES_PB.map((c) => <option key={c} value={c} />)}</datalist>
           </label>
@@ -169,9 +174,21 @@ export default function Prospectar({ regiao }) {
             </div>
           ))}
           {!exterior && (
-            <p className="dica">
-              Cada busca traz no máximo 60 empresas. Para achar mais, repita o mesmo segmento trocando o bairro.
-            </p>
+            <div className="dica">
+              <p>Cada busca traz no máximo 60 empresas. Para achar mais, repita o mesmo segmento trocando o bairro ou a cidade.</p>
+              <div className="ideias-lista">
+                <span className="muted">Outras cidades:</span>
+                {CIDADES_PB.slice(1, 13).map((c) => (
+                  <button key={c} type="button" className={form.cidade === c ? 'chip ativo' : 'chip'} onClick={() => setForm({ ...form, cidade: c, bairro: '' })}>
+                    {c.replace(' - PB', '')}
+                  </button>
+                ))}
+              </div>
+              <p>
+                Nas mensagens, você diz que faz sites "aqui em João Pessoa" só para empresas de João Pessoa. Nas outras
+                cidades, o texto diz que você é de João Pessoa e atende toda a Paraíba.
+              </p>
+            </div>
           )}
         </div>
       )}

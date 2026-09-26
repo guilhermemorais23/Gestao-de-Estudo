@@ -62,6 +62,13 @@ export function modeloDe(usuario, lead, passo, tom) {
   return doTom[passo] || ''
 }
 
+// Só diz que é "daqui" para empresas de João Pessoa. Nas outras cidades, diz de onde é e que atende a Paraíba.
+export function ondeAtuo(lead) {
+  const lugar = `${lead.cidade || ''} ${lead.endereco || ''}`.toLowerCase()
+  if (lugar.includes('joão pessoa') || lugar.includes('joao pessoa')) return 'aqui em João Pessoa'
+  return 'em João Pessoa e atendo toda a Paraíba'
+}
+
 export function montarMensagem(usuario, lead, passo, tom) {
   const nota =
     lead.avaliacao && lead.num_avaliacoes >= 10
@@ -73,6 +80,7 @@ export function montarMensagem(usuario, lead, passo, tom) {
   const nomeEmpresa = lead.nome.replace(/\s*\((exemplo|example)\)$/i, '')
   return modeloDe(usuario, lead, passo, tom)
     .replaceAll('{saudacao}', saudacao())
+    .replaceAll('{onde_atuo}', ondeAtuo(lead))
     .replaceAll('{empresa}', nomeEmpresa)
     .replaceAll('{meu_nome}', usuario.nome)
     .replaceAll('{minha_empresa}', usuario.empresa ? `, da ${usuario.empresa}` : '')

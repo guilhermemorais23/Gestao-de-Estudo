@@ -1,6 +1,6 @@
 # Prospecta PB
 
-MVP para **encontrar empresas sem site** (João Pessoa / Paraíba e outras regiões), abordar pelo
+MVP para **encontrar empresas sem site** (João Pessoa, toda a Paraíba e outras regiões), abordar pelo
 WhatsApp, aplicar um **questionário (briefing)** e gerar automaticamente uma **prévia de landing page**
 para fechar a venda de sites e sistemas.
 
@@ -28,6 +28,10 @@ para fechar a venda de sites e sistemas.
 - Prévia com fotos e avaliações: faixa **Enterprise + Atmosphere** do Google, uma chamada por prévia
   gerada (algo na casa de US$ 0,02–0,04), mais cada foto exibida. Confira a tabela atual do Google.
 - Textos com IA: frações de centavo de dólar por texto com o Haiku 4.5.
+
+## Colocar no ar
+
+Veja o [DEPLOY.md](DEPLOY.md): Render (~US$ 7/mês, mais simples) ou VPS (~R$ 30/mês).
 
 ## Rodando
 

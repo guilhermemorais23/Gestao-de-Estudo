@@ -11,6 +11,8 @@ Passos da sequência:
 
 Campos que podem ser usados no texto:
   {saudacao} Bom dia / Boa tarde / Boa noite      {empresa} nome do lead
+  {onde_atuo} "aqui em João Pessoa" para empresas de João Pessoa; nas outras cidades da Paraíba,
+              "em João Pessoa e atendo toda a Paraíba" (você só diz que é "daqui" quando é verdade)
   {meu_nome} {minha_empresa}                      {categoria} ex.: barbearia
   {nota_texto} " com nota 4,9 em 214 avaliações" (vazio se não tiver)
   {link} link do questionário      {link_previa} link da prévia      {link_proposta} link da proposta
@@ -23,8 +25,8 @@ MODELOS_PADRAO = {
     "pt": {
         "formal": {
             "abertura": (
-                "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites aqui em "
-                "João Pessoa. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não "
+                "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites "
+                "{onde_atuo}. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não "
                 "têm um site. Posso enviar uma sugestão de como ficaria? Sem compromisso."
             ),
             "previa": (
@@ -52,7 +54,7 @@ MODELOS_PADRAO = {
         },
         "descontraido": {
             "abertura": (
-                "Oi, tudo bem? Sou o {meu_nome}, faço sites aqui em João Pessoa. Vi a {empresa} no "
+                "Oi, tudo bem? Sou o {meu_nome}, faço sites {onde_atuo}. Vi a {empresa} no "
                 "Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês "
                 "direto. Posso te mandar uma ideia de como ficaria? Sem compromisso."
             ),

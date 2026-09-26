@@ -2,7 +2,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI  # noqa: E402
+import os  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi.responses import FileResponse  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
 from database.connection import Base, engine  # noqa: E402
@@ -19,7 +24,7 @@ app = FastAPI(title="Prospecta PB — API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=os.getenv("ORIGENS_PERMITIDAS", "http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,3 +40,18 @@ app.include_router(previa_router, prefix="/api/publico", tags=["Público (client
 @app.get("/api/saude")
 def saude():
     return {"ok": True}
+
+
+# Em produção, o próprio backend entrega o frontend já compilado (um serviço só para hospedar).
+FRONTEND = Path(os.getenv("FRONTEND_DIST", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
+if FRONTEND.is_dir():
+    app.mount("/assets", StaticFiles(directory=FRONTEND / "assets"), name="assets")
+
+    @app.get("/{caminho:path}", include_in_schema=False)
+    def frontend(caminho: str):
+        if caminho.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Rota não encontrada")
+        arquivo = (FRONTEND / caminho).resolve()
+        if caminho and arquivo.is_file() and FRONTEND.resolve() in arquivo.parents:
+            return FileResponse(arquivo)
+        return FileResponse(FRONTEND / "index.html")  # rotas do React (/leads, /p/..., /proposta/...)

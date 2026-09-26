@@ -634,3 +634,5 @@ label.check input { width: auto; accent-color: var(--destaque); }
 .pv-hero .pv-capa.pv-foto-exemplo span { display: none; }
 .pv-beleza .pv-botao.secundario { color: var(--pv-texto); }
 .pv-celular .pv-nav { padding-top: 2.6rem; }
+.dica { display: flex; flex-direction: column; gap: .7rem; }
+.dica .ideias-lista { align-items: center; }
