@@ -135,7 +135,7 @@ export default function Prospectar({ regiao }) {
                 Fonte
                 <select value={form.fonte} onChange={set('fonte')}>
                   <option value="google">Google Maps</option>
-                  <option value="osm">OpenStreetMap (grátis)</option>
+                  <option value="osm">OpenStreetMap (grátis, menos empresas)</option>
                 </select>
               </label>
               {form.fonte === 'google' && (
@@ -204,7 +204,15 @@ export default function Prospectar({ regiao }) {
             </p>
             <button className="btn-texto" onClick={() => setResultado(null)}>Nova busca</button>
           </div>
-          <TabelaLeads leads={leads} setLeads={setLeads} mostrarGestao={false} />
+          {resultado.total_encontrado === 0 ? (
+            <div className="vazio">
+              {form.fonte === 'osm'
+                ? `O OpenStreetMap não tem "${form.termo}" cadastrado em ${form.cidade.replace(' - PB', '')}. Ele tem bem menos empresas que o Google: tente um termo mais geral (ex.: "salão", "restaurante", "oficina") ou cadastre os leads à mão em Leads.`
+                : 'Nenhuma empresa encontrada. Tente outro termo ou outro bairro.'}
+            </div>
+          ) : (
+            <TabelaLeads leads={leads} setLeads={setLeads} mostrarGestao={false} />
+          )}
         </>
       )}
     </section>

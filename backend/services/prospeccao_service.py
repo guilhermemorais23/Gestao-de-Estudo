@@ -24,7 +24,12 @@ GOOGLE_CAMPOS = ",".join(
         "nextPageToken",
     ]
 )
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+# Servidores públicos do OpenStreetMap (Overpass). Se um estiver fora ou lotado, tenta o próximo.
+OVERPASS_URLS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+]
 
 # Link de rede social/agregador não é site de verdade: esse cliente também é oportunidade.
 DOMINIOS_SEM_SITE = (
@@ -33,43 +38,57 @@ DOMINIOS_SEM_SITE = (
     "sites.google.com", "bio.link", "beacons.ai",
 )
 
-# Termos comuns em português -> tags do OpenStreetMap
+# Termos comuns em português -> tags do OpenStreetMap (um termo pode virar mais de uma tag)
 OSM_CATEGORIAS = {
-    "restaurante": ("amenity", "restaurant"),
-    "lanchonete": ("amenity", "fast_food"),
-    "hamburgueria": ("amenity", "fast_food"),
-    "pizzaria": ("amenity", "restaurant"),
-    "bar": ("amenity", "bar"),
-    "cafe": ("amenity", "cafe"),
-    "cafeteria": ("amenity", "cafe"),
-    "padaria": ("shop", "bakery"),
-    "salao": ("shop", "hairdresser"),
-    "cabeleireiro": ("shop", "hairdresser"),
-    "barbearia": ("shop", "hairdresser"),
-    "estetica": ("shop", "beauty"),
-    "manicure": ("shop", "beauty"),
-    "academia": ("leisure", "fitness_centre"),
-    "clinica": ("amenity", "clinic"),
-    "dentista": ("amenity", "dentist"),
-    "odontologia": ("amenity", "dentist"),
-    "farmacia": ("amenity", "pharmacy"),
-    "veterinario": ("amenity", "veterinary"),
-    "petshop": ("shop", "pet"),
-    "pet shop": ("shop", "pet"),
-    "oficina": ("shop", "car_repair"),
-    "mecanica": ("shop", "car_repair"),
-    "mercado": ("shop", "supermarket"),
-    "supermercado": ("shop", "supermarket"),
-    "loja de roupas": ("shop", "clothes"),
-    "roupas": ("shop", "clothes"),
-    "otica": ("shop", "optician"),
-    "hotel": ("tourism", "hotel"),
-    "pousada": ("tourism", "guest_house"),
-    "imobiliaria": ("office", "estate_agent"),
-    "advogado": ("office", "lawyer"),
-    "contabilidade": ("office", "accountant"),
-    "floricultura": ("shop", "florist"),
-    "material de construcao": ("shop", "hardware"),
+    "restaurante": [("amenity", "restaurant")],
+    "lanchonete": [("amenity", "fast_food")],
+    "hamburgueria": [("amenity", "fast_food")],
+    "pizzaria": [("amenity", "restaurant"), ("amenity", "fast_food")],
+    "marmitaria": [("amenity", "restaurant")],
+    "acai": [("amenity", "ice_cream"), ("shop", "ice_cream")],
+    "sorveteria": [("amenity", "ice_cream")],
+    "bar": [("amenity", "bar"), ("amenity", "pub")],
+    "cafe": [("amenity", "cafe")],
+    "cafeteria": [("amenity", "cafe")],
+    "padaria": [("shop", "bakery")],
+    "confeitaria": [("shop", "pastry"), ("shop", "confectionery")],
+    "salao": [("shop", "hairdresser"), ("shop", "beauty")],
+    "salao de beleza": [("shop", "hairdresser"), ("shop", "beauty")],
+    "cabeleireiro": [("shop", "hairdresser")],
+    "barbearia": [("shop", "hairdresser")],
+    "estetica": [("shop", "beauty")],
+    "clinica de estetica": [("shop", "beauty")],
+    "manicure": [("shop", "beauty")],
+    "estudio de sobrancelha": [("shop", "beauty")],
+    "tatuagem": [("shop", "tattoo")],
+    "academia": [("leisure", "fitness_centre")],
+    "personal trainer": [("leisure", "fitness_centre")],
+    "clinica": [("amenity", "clinic"), ("healthcare", "clinic")],
+    "dentista": [("amenity", "dentist"), ("healthcare", "dentist")],
+    "odontologia": [("amenity", "dentist")],
+    "fisioterapia": [("healthcare", "physiotherapist")],
+    "psicologo": [("healthcare", "psychotherapist")],
+    "nutricionista": [("healthcare", "nutrition_counselling")],
+    "farmacia": [("amenity", "pharmacy")],
+    "veterinario": [("amenity", "veterinary")],
+    "petshop": [("shop", "pet")],
+    "pet shop": [("shop", "pet")],
+    "oficina": [("shop", "car_repair")],
+    "oficina mecanica": [("shop", "car_repair")],
+    "mecanica": [("shop", "car_repair")],
+    "lava jato": [("amenity", "car_wash")],
+    "mercado": [("shop", "supermarket"), ("shop", "convenience")],
+    "supermercado": [("shop", "supermarket")],
+    "loja de roupas": [("shop", "clothes")],
+    "roupas": [("shop", "clothes")],
+    "otica": [("shop", "optician")],
+    "hotel": [("tourism", "hotel")],
+    "pousada": [("tourism", "guest_house")],
+    "imobiliaria": [("office", "estate_agent")],
+    "advogado": [("office", "lawyer")],
+    "contabilidade": [("office", "accountant")],
+    "floricultura": [("shop", "florist")],
+    "material de construcao": [("shop", "hardware"), ("shop", "doityourself")],
 }
 
 
@@ -176,32 +195,52 @@ def buscar_google(termo: str, cidade: str, idioma: str, regiao: str, paginas: in
     return resultados
 
 
-def buscar_osm(termo: str, cidade: str) -> list[dict]:
-    """Gratuito e sem chave. Cobertura menor que a do Google, mas bom pra começar."""
+def _consulta_osm(termo: str, cidade: str, regiao: str) -> str:
     nome_cidade = cidade.split(",")[0].split("/")[0].split(" - ")[0].strip()
-    chave_termo = _sem_acento(termo)
-    tag = OSM_CATEGORIAS.get(chave_termo)
-    if tag:
-        filtro = f'["{tag[0]}"="{tag[1]}"]["name"]'
+    nome_cidade = re.sub(r'["\\]', "", nome_cidade)
+    tags = OSM_CATEGORIAS.get(_sem_acento(termo))
+    if tags:
+        filtros = [f'nwr(area.a)["{k}"="{v}"]["name"];' for k, v in tags]
     else:
         seguro = re.sub(r'["\\\]\[]', "", termo)
-        filtro = f'["name"~"{seguro}",i][~"^(shop|amenity|craft|office|healthcare|leisure|tourism)$"~"."]'
-    consulta = f"""
-    [out:json][timeout:60];
-    area["name"="{nome_cidade}"]["boundary"="administrative"]->.a;
-    nwr(area.a){filtro};
-    out center tags 300;
-    """
-    try:
-        resp = httpx.post(
-            OVERPASS_URL, data={"data": consulta}, timeout=90, headers={"User-Agent": "prospecta-pb/0.1"}
+        filtros = [f'nwr(area.a)["name"~"{seguro}",i][~"^(shop|amenity|craft|office|healthcare|leisure|tourism)$"~"."];']
+    if regiao == "pb":
+        # limita à Paraíba: várias cidades têm nomes repetidos em outros estados
+        area = (
+            'area["name"="Paraíba"]["admin_level"="4"]->.uf;\n'
+            f'rel(area.uf)["boundary"="administrative"]["admin_level"="8"]["name"="{nome_cidade}"];\n'
+            "map_to_area->.a;"
         )
-        resp.raise_for_status()
-    except httpx.HTTPError as erro:
-        raise HTTPException(status_code=502, detail=f"OpenStreetMap indisponível: {erro}")
+    else:
+        area = f'area["name"="{nome_cidade}"]["boundary"="administrative"]->.a;'
+    return f"[out:json][timeout:60];\n{area}\n(\n  " + "\n  ".join(filtros) + "\n);\nout center tags 300;"
+
+
+def buscar_osm(termo: str, cidade: str, regiao: str = "pb") -> list[dict]:
+    """Gratuito e sem chave. Cobertura menor que a do Google, mas bom pra começar."""
+    consulta = _consulta_osm(termo, cidade, regiao)
+    nome_cidade = cidade.split(",")[0].split(" - ")[0].strip()
+    falhas = []
+    dados = None
+    for url in OVERPASS_URLS:
+        try:
+            resp = httpx.post(url, data={"data": consulta}, timeout=75, headers={"User-Agent": "prospecta-pb/0.2 (prospeccao de clientes locais)"})
+        except httpx.HTTPError as erro:
+            falhas.append(f"{url.split('/')[2]}: {type(erro).__name__}")
+            continue
+        if resp.status_code == 200:
+            dados = resp.json()
+            break
+        falhas.append(f"{url.split('/')[2]}: HTTP {resp.status_code}")
+    if dados is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Os servidores do OpenStreetMap não responderam agora (" + "; ".join(falhas)
+            + "). Tente de novo em alguns minutos.",
+        )
 
     resultados = []
-    for el in resp.json().get("elements", []):
+    for el in dados.get("elements", []):
         t = el.get("tags", {})
         rua = " ".join(filter(None, [t.get("addr:street"), t.get("addr:housenumber")]))
         endereco = ", ".join(filter(None, [rua, t.get("addr:suburb"), nome_cidade]))
@@ -213,10 +252,11 @@ def buscar_osm(termo: str, cidade: str) -> list[dict]:
                     "place_id": f"osm:{el['type']}/{el['id']}",
                     "fonte": "osm",
                     "nome": t.get("name", "Sem nome"),
-                    "categoria": t.get("shop") or t.get("amenity") or t.get("craft") or t.get("office") or "",
+                    "categoria": t.get("shop") or t.get("amenity") or t.get("craft") or t.get("office")
+                    or t.get("healthcare") or t.get("leisure") or t.get("tourism") or "",
                     "endereco": endereco,
-                    "telefone": t.get("phone") or t.get("contact:phone") or t.get("contact:whatsapp"),
-                    "website": t.get("website") or t.get("contact:website") or t.get("contact:instagram"),
+                    "telefone": t.get("phone") or t.get("contact:phone") or t.get("contact:whatsapp") or t.get("mobile"),
+                    "website": t.get("website") or t.get("contact:website") or t.get("url") or t.get("contact:instagram"),
                     "maps_url": f"https://www.google.com/maps/search/?api=1&query={lat},{lon}" if lat else "",
                 }
             )
@@ -229,7 +269,7 @@ def buscar(termo, cidade, fonte, idioma, regiao, paginas, incluir_so_rede_social
     if fonte == "google":
         todos = buscar_google(termo, cidade, idioma, regiao, paginas)
     else:
-        todos = buscar_osm(termo, cidade)
+        todos = buscar_osm(termo, cidade, regiao)
     filtrados = [
         l for l in todos if not l["website"] or (incluir_so_rede_social and l["so_rede_social"])
     ]
