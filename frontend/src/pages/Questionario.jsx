@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { api, linkWhatsapp } from '../api'
+import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 import { PERGUNTAS, TEXTOS, resumoTexto } from '../perguntas'
 
 export default function Questionario() {
@@ -51,7 +51,7 @@ export default function Questionario() {
         },
       })
       const saudacao = { pt: 'Olá! Acabei de responder o questionário do site.', en: 'Hi! I just filled in the website form.', es: '¡Hola! Acabo de responder el formulario del sitio.' }[idioma]
-      const msg = `${saudacao}\n\n${resumoTexto(respostas, idioma)}\n\n${window.location.origin}/lp/${r.token}`
+      const msg = `${saudacao}\n\n${resumoTexto(respostas, idioma)}\n\n${urlPublica(`/lp/${r.token}`)}`
       setFinal({ ...r, link: linkWhatsapp(r.whatsapp_vendedor, msg) })
     } catch (err) {
       setErro(err.message)
@@ -63,6 +63,7 @@ export default function Questionario() {
   if (final) {
     return (
       <div className="publico">
+        {DEMO && <Link className="voltar-demo" to="/respostas">← Ver no painel</Link>}
         <div className="card centro">
           <h1>{t.obrigado}</h1>
           <div className="acoes centro">
@@ -84,6 +85,7 @@ export default function Questionario() {
 
   return (
     <div className="publico">
+      {DEMO && <Link className="voltar-demo" to="/leads">← Voltar ao painel</Link>}
       <form className="card questionario" onSubmit={enviar}>
         <h1>{t.titulo}</h1>
         <p className="muted">{t.sub}{info.empresa_vendedor ? ` — ${info.empresa_vendedor}` : ''}</p>

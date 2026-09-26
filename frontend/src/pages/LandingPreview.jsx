@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { api, linkWhatsapp } from '../api'
+import { Link, useParams } from 'react-router-dom'
+import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 
 // Transforma "preto e dourado" em cores de verdade para a prévia
 const CORES = {
@@ -54,12 +54,13 @@ export default function LandingPreview() {
   const servicos = (r.servicos || '').split('\n').map((s) => s.trim()).filter(Boolean)
   const recursos = (r.recursos || []).join(' ').toLowerCase()
   const zapCliente = linkWhatsapp(briefing.contato_whatsapp || r.contato_whatsapp, '')
-  const zapVendedor = linkWhatsapp(vendedor.whatsapp, `Quero o site da ${briefing.empresa}! (${window.location.href})`)
+  const zapVendedor = linkWhatsapp(vendedor.whatsapp, `Quero o site da ${briefing.empresa}! (${urlPublica(`/lp/${token}`)})`)
   const instagram = (r.instagram || '').replace('@', '').trim()
 
   return (
     <div className="lp" style={{ '--lp-principal': principal, '--lp-destaque': destaque }}>
       <div className="lp-faixa">
+        {DEMO && <Link to="/respostas">← Voltar ao painel</Link>}
         {t.faixa} <b>{vendedor.empresa || vendedor.nome}</b>
         {vendedor.whatsapp && <a href={zapVendedor} target="_blank" rel="noreferrer">{t.gostou} →</a>}
       </div>

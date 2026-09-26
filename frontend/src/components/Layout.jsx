@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { api, sair } from '../api'
+import { DEMO, api, sair } from '../api'
 
 const ABAS = [
   { to: '/prospectar', label: '📍 Prospectar PB' },
@@ -33,6 +33,11 @@ export default function Layout() {
           <button className="btn-link" onClick={sair}>Sair</button>
         </div>
       </header>
+      {DEMO && (
+        <div className="aviso-demo faixa">
+          Demonstração: as empresas são de exemplo e a busca é simulada. No sistema real os dados vêm do Google Maps.
+        </div>
+      )}
       {usuario && !usuario.whatsapp && (
         <div className="aviso">
           Configure seu WhatsApp em <NavLink to="/config">Configurações</NavLink> — é para ele que os clientes

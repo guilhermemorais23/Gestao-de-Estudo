@@ -1,5 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { getToken } from './api'
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { DEMO, getToken } from './api'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Prospectar from './pages/Prospectar'
@@ -9,13 +9,16 @@ import Config from './pages/Config'
 import Questionario from './pages/Questionario'
 import LandingPreview from './pages/LandingPreview'
 
+// Na demonstração (página única, sem servidor) as rotas ficam depois do #
+const Router = DEMO ? HashRouter : BrowserRouter
+
 function Privado({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
 
@@ -35,6 +38,6 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   )
 }

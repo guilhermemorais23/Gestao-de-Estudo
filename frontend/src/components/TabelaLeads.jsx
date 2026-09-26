@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../api'
 import WhatsappModal from './WhatsappModal'
@@ -21,6 +21,7 @@ function corScore(score) {
 export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
   const { usuario } = useOutletContext()
   const [aberto, setAberto] = useState(null)
+  const [confirmando, setConfirmando] = useState(null)
 
   function substituir(atualizado) {
     setLeads((lista) => lista.map((l) => (l.id === atualizado.id ? atualizado : l)))
@@ -31,7 +32,7 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
   }
 
   async function excluir(lead) {
-    if (!confirm(`Excluir ${lead.nome}?`)) return
+    setConfirmando(null)
     await api(`/leads/${lead.id}`, { method: 'DELETE' })
     setLeads((lista) => lista.filter((l) => l.id !== lead.id))
   }
@@ -99,7 +100,14 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
                 )}
                 <td className="nowrap">
                   <button className="btn verde pequeno-btn" onClick={() => setAberto(l)}>WhatsApp</button>
-                  {mostrarGestao && <button className="btn-link perigo" onClick={() => excluir(l)}>excluir</button>}
+                  {mostrarGestao && (confirmando === l.id ? (
+                    <Fragment>
+                      <button className="btn-link perigo" onClick={() => excluir(l)}>confirmar</button>
+                      <button className="btn-link" onClick={() => setConfirmando(null)}>não</button>
+                    </Fragment>
+                  ) : (
+                    <button className="btn-link perigo" onClick={() => setConfirmando(l.id)}>excluir</button>
+                  ))}
                 </td>
               </tr>
             ))}

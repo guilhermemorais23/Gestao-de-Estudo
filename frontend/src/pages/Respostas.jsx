@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
-import { api, linkWhatsapp } from '../api'
+import { Link, useOutletContext } from 'react-router-dom'
+import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 import { PERGUNTAS } from '../perguntas'
 
 export default function Respostas() {
@@ -28,7 +28,7 @@ export default function Respostas() {
       </p>
       {!lista.length && <p className="muted">Ninguém respondeu ainda. Envie o link do questionário pelo WhatsApp.</p>}
       {lista.map((b) => {
-        const lp = `${window.location.origin}/lp/${b.token}`
+        const lp = urlPublica(`/lp/${b.token}`)
         const msg = `Oi ${b.contato_nome}! Aqui é ${usuario.nome}. Fiz uma prévia do site da ${b.empresa}, dá uma olhada: ${lp}`
         return (
           <div key={b.id} className={`card resposta ${b.lido ? '' : 'nao-lida'}`}>
@@ -52,7 +52,11 @@ export default function Respostas() {
                   ))}
                 </dl>
                 <div className="acoes">
-                  <a className="btn" href={lp} target="_blank" rel="noreferrer">Ver prévia da landing page</a>
+                  {DEMO ? (
+                    <Link className="btn" to={`/lp/${b.token}`}>Ver prévia da landing page</Link>
+                  ) : (
+                    <a className="btn" href={lp} target="_blank" rel="noreferrer">Ver prévia da landing page</a>
+                  )}
                   {b.contato_whatsapp && (
                     <a className="btn verde" href={linkWhatsapp(b.contato_whatsapp, msg)} target="_blank" rel="noreferrer">
                       Mandar prévia no WhatsApp

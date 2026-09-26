@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { api, linkWhatsapp } from '../api'
+import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 
 export function montarMensagem(usuario, lead) {
   const modelo = usuario[`msg_${lead.idioma}`] || usuario.msg_pt || ''
@@ -8,7 +9,7 @@ export function montarMensagem(usuario, lead) {
     .replaceAll('{empresa}', lead.nome)
     .replaceAll('{meu_nome}', usuario.nome)
     .replaceAll('{minha_empresa}', usuario.empresa ? `, da ${usuario.empresa}` : '')
-    .replaceAll('{link}', `${window.location.origin}/q/${lead.token}`)
+    .replaceAll('{link}', urlPublica(`/q/${lead.token}`))
 }
 
 export default function WhatsappModal({ usuario, lead, onFechar, onAtualizado }) {
@@ -28,7 +29,11 @@ export default function WhatsappModal({ usuario, lead, onFechar, onAtualizado })
   }
 
   async function copiar(texto, qual) {
-    await navigator.clipboard.writeText(texto)
+    try {
+      await navigator.clipboard.writeText(texto)
+    } catch {
+      window.getSelection()?.selectAllChildren(document.querySelector('.modal textarea'))
+    }
     setCopiado(qual)
     setTimeout(() => setCopiado(''), 1500)
   }
@@ -61,9 +66,12 @@ export default function WhatsappModal({ usuario, lead, onFechar, onAtualizado })
               <button className="btn claro" onClick={() => copiar(mensagem, 'msg')}>
                 {copiado === 'msg' ? 'Copiado!' : 'Copiar mensagem'}
               </button>
-              <button className="btn claro" onClick={() => copiar(`${window.location.origin}/q/${lead.token}`, 'q')}>
+              <button className="btn claro" onClick={() => copiar(urlPublica(`/q/${lead.token}`), 'q')}>
                 {copiado === 'q' ? 'Copiado!' : 'Copiar link do questionário'}
               </button>
+              {DEMO && (
+                <Link className="btn claro" to={`/q/${lead.token}`}>Ver o questionário como o cliente →</Link>
+              )}
             </div>
           </div>
           <div className="qr">

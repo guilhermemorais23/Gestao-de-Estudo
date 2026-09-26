@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:demo": "VITE_DEMO=1 vite build --outDir dist-demo"
   },
   "dependencies": {
     "qrcode.react": "^4.2.0",
@@ -17,5 +18,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.1",
     "vite": "^8.3.1"
-  }
+  },
+  "sideEffects": [
+    "*.css"
+  ]
 }

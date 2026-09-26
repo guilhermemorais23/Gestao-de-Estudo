@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { api } from '../api'
+import { api, urlPublica } from '../api'
 
 export default function Config() {
   const { usuario, setUsuario } = useOutletContext()
@@ -10,7 +10,7 @@ export default function Config() {
     msg_pt: usuario.msg_pt, msg_en: usuario.msg_en, msg_es: usuario.msg_es,
   })
   const [salvo, setSalvo] = useState(false)
-  const linkPublico = `${window.location.origin}/q/${usuario.token_publico}`
+  const linkPublico = urlPublica(`/q/${usuario.token_publico}`)
 
   const set = (campo) => (e) => setForm({ ...form, [campo]: e.target.value })
 

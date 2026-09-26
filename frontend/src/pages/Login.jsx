@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../api'
+import { DEMO, api, salvarToken } from '../api'
 
 export default function Login() {
   const [modo, setModo] = useState('login')
-  const [form, setForm] = useState({ nome: '', email: '', senha: '' })
+  const [form, setForm] = useState(
+    DEMO ? { nome: '', email: 'demo@prospecta.pb', senha: 'demo123' } : { nome: '', email: '', senha: '' },
+  )
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const navigate = useNavigate()
@@ -19,7 +21,7 @@ export default function Login() {
       const rota = modo === 'login' ? '/auth/login' : '/auth/registro'
       const corpo = modo === 'login' ? { email: form.email, senha: form.senha } : form
       const { token } = await api(rota, { method: 'POST', body: corpo })
-      localStorage.setItem('token', token)
+      salvarToken(token)
       navigate('/prospectar')
     } catch (err) {
       setErro(err.message)
@@ -33,6 +35,7 @@ export default function Login() {
       <form className="card login" onSubmit={enviar}>
         <h1>🔎 Prospecta PB</h1>
         <p className="muted">Encontre empresas sem site e transforme em clientes.</p>
+        {DEMO && <p className="aviso-demo">Demonstração com dados de exemplo. É só clicar em Entrar.</p>}
         {modo === 'registro' && (
           <label>Nome<input value={form.nome} onChange={set('nome')} required minLength={2} /></label>
         )}

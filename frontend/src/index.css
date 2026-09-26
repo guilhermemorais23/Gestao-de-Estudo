@@ -149,3 +149,7 @@ label.check input { width: auto; }
   .aba { white-space: nowrap; }
 }
 .filtros select { width: auto; }
+.aviso-demo { background: #e0f2fe; color: #075985; border-radius: 8px; padding: .5rem .75rem; font-size: .85rem; }
+.aviso-demo.faixa { border-radius: 0; padding: .5rem 1rem; }
+.voltar-demo { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 12px; background: #0f172a; color: #fff; padding: .4rem .8rem; border-radius: 999px; text-decoration: none; font-size: .85rem; z-index: 10; }
+.publico:has(.voltar-demo) { padding-top: 3.5rem; }
