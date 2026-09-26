@@ -5,13 +5,14 @@ import MODELOS from './modelos.json'
 import PACOTES from './pacotes.json'
 
 let seq = 100
+let enviosHoje = 7
 const tok = () => Math.random().toString(36).slice(2, 11)
 const agora = () => new Date().toISOString().replace('Z', '')
 
 const usuario = {
   id: 1, nome: 'Guilherme', email: 'demo@prospecta.pb', empresa: 'GM Sites', whatsapp: '5583999990000',
   token_publico: 'geral', meta_mensal: 4, modelos: structuredClone(MODELOS),
-  pacotes: structuredClone(PACOTES), pix_chave: 'demo@prospecta.pb', pix_nome: 'GM Sites', pix_cidade: 'Joao Pessoa', entrada_percentual: 50,
+  pacotes: structuredClone(PACOTES), pix_chave: 'demo@prospecta.pb', pix_nome: 'GM Sites', pix_cidade: 'Joao Pessoa', entrada_percentual: 50, limite_diario: 20,
 }
 
 const diasAtras = (n) => new Date(Date.now() - n * 86400000).toISOString().replace('Z', '')
@@ -23,16 +24,17 @@ function lead(d) {
     maps_url: 'https://www.google.com/maps', tom: Math.random() < 0.5 ? 'formal' : 'descontraido',
     passo: 0, ultimo_envio_em: null, respondeu: false, respondeu_no_passo: null, questionario_enviado: false,
     previa_gerada_em: null, previa_vista_em: null, previa_ultima_vista_em: null, previa_visualizacoes: 0,
-    proposta_vista_em: null, proposta_escolha: null, proposta_escolha_em: null, ...d,
+    proposta_vista_em: null, proposta_escolha: null, proposta_escolha_em: null,
+    previa_enviada_em: null, proposta_enviada_em: null, pos_passo: 0, ...d,
   }
 }
 
 let leads = [
   lead({ nome: 'Barbearia Cabo Branco (exemplo)', categoria: 'Barbearia', endereco: 'Av. Cabo Branco, Cabo Branco', telefone: '(83) 99812-4410', whatsapp: '5583998124410', whatsapp_provavel: true, avaliacao: 4.9, num_avaliacoes: 214, score: 95 }),
-  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'respondeu', notas: 'Dona pediu pra chamar depois das 18h', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(1), respondeu: true, respondeu_no_passo: 1, previa_gerada_em: diasAtras(1), previa_vista_em: diasAtras(0.2), previa_ultima_vista_em: diasAtras(0.08), previa_visualizacoes: 3 }),
+  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'respondeu', notas: 'Dona pediu pra chamar depois das 18h', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(1), respondeu: true, respondeu_no_passo: 1, previa_gerada_em: diasAtras(1), previa_enviada_em: diasAtras(1), previa_vista_em: diasAtras(0.2), previa_ultima_vista_em: diasAtras(0.08), previa_visualizacoes: 3 }),
   lead({ nome: 'Pet Amigo Bancários (exemplo)', categoria: 'Pet shop', endereco: 'R. Bancário Sérgio Guerra, Bancários', telefone: '(83) 3222-4455', whatsapp: '558332224455', whatsapp_provavel: false, avaliacao: 4.2, num_avaliacoes: 40, score: 45, tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(5) }),
   lead({ nome: 'Oficina do Tonho (exemplo)', categoria: 'Oficina mecânica', endereco: 'Av. Dois de Fevereiro, Rangel', telefone: '(83) 98870-1122', whatsapp: '5583988701122', whatsapp_provavel: true, avaliacao: 4.7, num_avaliacoes: 131, score: 92, status: 'questionario', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
-  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta', tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 2, questionario_enviado: true, previa_gerada_em: diasAtras(3), previa_vista_em: diasAtras(2.5), previa_ultima_vista_em: diasAtras(1.5), previa_visualizacoes: 2, proposta_vista_em: diasAtras(0.5), proposta_escolha: 'landing_manutencao', proposta_escolha_em: diasAtras(0.4) }),
+  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta', tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 2, questionario_enviado: true, previa_gerada_em: diasAtras(3), previa_enviada_em: diasAtras(3), proposta_enviada_em: diasAtras(1), previa_vista_em: diasAtras(2.5), previa_ultima_vista_em: diasAtras(1.5), previa_visualizacoes: 2, proposta_vista_em: diasAtras(0.5), proposta_escolha: 'landing_manutencao', proposta_escolha_em: diasAtras(0.4) }),
   lead({ nome: 'Clínica Sorriso Bessa (exemplo)', categoria: 'Dentista', endereco: 'Av. Argemiro de Figueiredo, Bessa', telefone: '(83) 99301-5566', whatsapp: '5583993015566', whatsapp_provavel: true, avaliacao: 5.0, num_avaliacoes: 67, score: 91, status: 'fechado', notas: 'Landing page + agendamento. R$ 1.200', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(12), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
   lead({ nome: 'Sunny Nails Studio (example)', categoria: 'Nail salon', endereco: 'Brickell, Miami, FL', cidade: 'Miami, USA', regiao: 'exterior', idioma: 'en', telefone: '+1 305-555-0142', whatsapp: '13055550142', whatsapp_provavel: true, avaliacao: 4.8, num_avaliacoes: 156, score: 88 }),
 ]
@@ -55,6 +57,10 @@ for (let i = 0; i < 70; i++) {
     avaliacao: +(4 + (i % 10) / 10).toFixed(1), num_avaliacoes: 10 + ((i * 13) % 150), score: 50 + ((i * 7) % 45),
     tom, passo, respondeu, respondeu_no_passo: respondeu ? passo : null, questionario_enviado: respondeu && sorte % 3 !== 0,
     ultimo_envio_em: diasAtras(1 + (i % 9)),
+    previa_enviada_em: respondeu ? diasAtras(2 + (i % 5)) : null,
+    previa_vista_em: respondeu && sorte % 4 !== 3 ? diasAtras(1 + (i % 4)) : null,
+    proposta_vista_em: fezQuest || fechou ? diasAtras(1) : null,
+    pos_passo: respondeu ? i % 3 : 0,
     status: fechou ? 'fechado' : fezQuest ? 'questionario' : respondeu ? 'respondeu' : passo === 3 && i % 5 === 0 ? 'perdido' : 'contatado',
   }))
 }
@@ -172,8 +178,10 @@ function montarPrevia(token) {
 }
 
 function pendente(l) {
-  if (l.respondeu || ['fechado', 'perdido'].includes(l.status) || !l.ultimo_envio_em) return false
+  if (['fechado', 'perdido'].includes(l.status) || !l.ultimo_envio_em) return false
   const dias = (Date.now() - new Date(l.ultimo_envio_em + 'Z').getTime()) / 86400000
+  if (l.previa_enviada_em && !l.proposta_escolha) return ({ 0: 1, 1: 2, 2: 4 })[l.pos_passo || 0] <= dias
+  if (l.respondeu) return false
   return (l.passo === 1 && dias >= 2) || (l.passo === 2 && dias >= 4)
 }
 
@@ -187,6 +195,9 @@ function funil(g) {
     questionario_respondido: conta((l) => ['questionario', 'proposta', 'fechado'].includes(l.status)),
     proposta: conta((l) => ['proposta', 'fechado'].includes(l.status)),
     fechados: conta((l) => l.status === 'fechado'),
+    previa_enviada: conta((l) => l.previa_enviada_em),
+    previa_aberta: conta((l) => l.previa_vista_em),
+    proposta_vista: conta((l) => l.proposta_vista_em || l.proposta_escolha),
     parou_sem_resposta: { 1: conta((l) => !l.respondeu && l.passo === 1), 2: conta((l) => !l.respondeu && l.passo === 2), 3: conta((l) => !l.respondeu && l.passo === 3) },
   }
 }
@@ -244,7 +255,7 @@ export async function mockApi(caminho, method, body) {
   }
   if (rota === '/leads/resumo') {
     const r = leads.reduce((acc, l) => ({ ...acc, [l.status]: (acc[l.status] || 0) + 1 }), {})
-    return { ...r, _pendentes: leads.filter(pendente).length, _fechados_mes: r.fechado || 0 }
+    return { ...r, _pendentes: leads.filter(pendente).length, _fechados_mes: r.fechado || 0, _envios_hoje: enviosHoje, _limite_diario: usuario.limite_diario }
   }
   if (rota === '/leads/metricas') {
     const contatados = leads.filter((l) => l.passo > 0)
@@ -270,7 +281,19 @@ export async function mockApi(caminho, method, body) {
     return novo
   }
   if (partes[0] === 'leads' && partes[2] === 'envio') {
+    enviosHoje += 1
     return alterar(Number(partes[1]), (l) => {
+      if (body.passo === 'previa') l.previa_enviada_em = l.previa_enviada_em || agora()
+      if (body.passo === 'proposta') l.proposta_enviada_em = l.proposta_enviada_em || agora()
+      if (/^pos\d$/.test(body.passo)) { l.pos_passo = Math.max(l.pos_passo || 0, Number(body.passo[3])); l.ultimo_envio_em = agora(); return }
+      if (body.passo === 'objecao') { l.ultimo_envio_em = agora(); return }
+      if (body.passo === 'previa' || body.passo === 'proposta') {
+        if (!l.respondeu) Object.assign(l, { respondeu: true, respondeu_no_passo: l.passo || 1 })
+        if (body.passo === 'proposta') l.status = 'proposta'
+        else if (['novo', 'contatado'].includes(l.status)) l.status = 'respondeu'
+        l.ultimo_envio_em = agora()
+        return
+      }
       if (body.passo === 'questionario') {
         l.questionario_enviado = true
         if (!l.respondeu) Object.assign(l, { respondeu: true, respondeu_no_passo: l.passo || 1 })

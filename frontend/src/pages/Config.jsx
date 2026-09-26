@@ -7,6 +7,13 @@ import { PASSOS, TONS } from '../mensagens'
 
 const IDIOMAS = { pt: 'Português', en: 'Inglês', es: 'Espanhol' }
 
+// Produto de entrada: mais barato que o site, abre a porta para vender o site depois
+const PACOTE_GOOGLE = {
+  id: 'google', nome: 'Otimização do Google', preco: 250, mensalidade: 0, prazo_dias: 3, recomendado: false,
+  descricao: 'Deixa o perfil da empresa no Google Maps completo para aparecer melhor nas buscas do bairro.',
+  itens: ['Descrição completa com os serviços', 'Horários, categorias e área de atendimento revisados', 'Fotos organizadas', 'Link direto para o WhatsApp', 'Estratégia simples para ganhar mais avaliações'],
+}
+
 export default function Config() {
   const { usuario, setUsuario } = useOutletContext()
   const [form, setForm] = useState({
@@ -14,6 +21,7 @@ export default function Config() {
     modelos: usuario.modelos, meta_mensal: usuario.meta_mensal || 4,
     pacotes: usuario.pacotes || [], pix_chave: usuario.pix_chave || '', pix_nome: usuario.pix_nome || '',
     pix_cidade: usuario.pix_cidade || '', entrada_percentual: usuario.entrada_percentual ?? 50,
+    limite_diario: usuario.limite_diario || 20,
   })
 
   function setPacote(i, campo, valor) {
@@ -56,6 +64,10 @@ export default function Config() {
           <label className="cresce">
             Seu WhatsApp (recebe os clientes)
             <input value={form.whatsapp} onChange={set('whatsapp')} placeholder="83 99999-9999" />
+          </label>
+          <label className="curto" htmlFor="limite">
+            Limite de mensagens por dia
+            <input id="limite" type="number" min="1" max="500" value={form.limite_diario} onChange={(e) => setForm({ ...form, limite_diario: Number(e.target.value) })} />
           </label>
           <label className="curto">
             Meta de clientes por mês
@@ -116,7 +128,14 @@ export default function Config() {
               </div>
             </fieldset>
           ))}
-          <button type="button" className="btn-texto" onClick={novoPacote}><Plus size={15} /> Adicionar pacote</button>
+          <div className="acoes">
+            <button type="button" className="btn-texto" onClick={novoPacote}><Plus size={15} /> Adicionar pacote</button>
+            {!form.pacotes.some((p) => p.id === 'google') && (
+              <button type="button" className="btn-texto" onClick={() => setForm({ ...form, pacotes: [...form.pacotes, structuredClone(PACOTE_GOOGLE)] })}>
+                <Plus size={15} /> Adicionar "Otimização do Google" (porta de entrada)
+              </button>
+            )}
+          </div>
         </div>
 
         <h2>Pagamento com PIX</h2>

@@ -1,6 +1,15 @@
 {
   "pt": {
     "formal": {
+      "video": "Gravei um vídeo rápido mostrando como ficaria o site da {empresa}. Se preferir ver no seu celular, o link é este: {link_previa}",
+      "pos1": "{saudacao}! Conseguiu ver a prévia do site da {empresa}? Se quiser, ajusto cores, fotos ou textos do jeito de vocês.",
+      "pos2": "{saudacao}! Uma coisa que não comentei: com o site, quem procura {categoria} no Google passa a encontrar a {empresa} com fotos, horário e botão de WhatsApp. Posso mandar a proposta com os valores?",
+      "pos3": "{saudacao}! Vou deixar a prévia do site no ar por mais alguns dias. Se quiserem seguir, é só me chamar por aqui. Obrigado pela atenção!",
+      "obj_instagram": "O Instagram continua sendo ótimo e não sai do ar. O site resolve outra coisa: quem pesquisa {categoria} no Google encontra quem tem site, não o perfil do Instagram. Um traz seguidores, o outro traz quem está procurando o serviço agora.",
+      "obj_caro": "Entendo. Tenho o pacote com manutenção, que tem a entrada menor e já inclui hospedagem e alterações. Se o site trouxer um cliente novo por semana, ele se paga no primeiro mês.",
+      "obj_pensar": "Claro, sem pressa. Para eu te ajudar a decidir: ficou alguma dúvida sobre o preço, o prazo ou alguma coisa na prévia?",
+      "obj_nao_preciso": "Que bom que o movimento está bom! O site também ajuda a organizar: horários, serviços e localização num link só, sem precisar responder as mesmas perguntas no WhatsApp.",
+      "obj_preco": "Os valores estão na proposta, com as opções e o prazo de cada uma: {link_proposta}\n\nA mais escolhida é a landing page com manutenção.",
       "abertura": "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites {onde_atuo}. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não têm um site. Posso enviar uma sugestão de como ficaria? Sem compromisso.",
       "previa": "Obrigado pelo retorno! Montei uma prévia de como ficaria o site da {empresa}, usando as fotos e as avaliações que vocês já têm no Google: {link_previa}\n\nDá uma olhada com calma. Se quiser, ajusto cores, textos e serviços do jeito de vocês.",
       "proposta": "Segue a proposta para o site da {empresa}, com os pacotes, o prazo e a forma de pagamento: {link_proposta}\n\nQualquer dúvida, é só me chamar por aqui.",
@@ -9,6 +18,15 @@
       "retorno2": "{saudacao}! Para não incomodar, esta é minha última mensagem. Se em algum momento quiserem um site, fico à disposição. Sucesso!"
     },
     "descontraido": {
+      "video": "Gravei um vídeo rapidinho mostrando como ficaria o site de vocês! Se quiser ver no celular, o link é esse: {link_previa}",
+      "pos1": "Oi! Conseguiu dar uma olhada na prévia? Se quiser mudar cor, foto ou texto, me fala que eu ajusto.",
+      "pos2": "Oi! Esqueci de comentar: com o site, quem procura {categoria} no Google acha vocês com foto, horário e botão direto pro WhatsApp. Quer que eu mande os valores?",
+      "pos3": "Vou deixar a prévia no ar mais uns dias, beleza? Se quiserem seguir, é só me chamar. Valeu!",
+      "obj_instagram": "O Instagram continua, é ótimo! O site é pra outra coisa: quem pesquisa {categoria} no Google acha quem tem site, não o Instagram. Um traz seguidor, o outro traz cliente procurando agora.",
+      "obj_caro": "Entendo! Tem o pacote com manutenção, que tem entrada menor e já inclui hospedagem e alterações. Se vier um cliente novo por semana pelo Google, ele se paga no primeiro mês.",
+      "obj_pensar": "De boa, sem pressa! Só pra eu te ajudar: ficou dúvida no preço, no prazo ou em algo da prévia?",
+      "obj_nao_preciso": "Que massa que o movimento tá bom! O site ajuda a organizar também: horário, serviços e localização num link só, sem responder a mesma pergunta 20 vezes no WhatsApp.",
+      "obj_preco": "Tá tudo na proposta, com as opções e o prazo: {link_proposta}\n\nA mais pedida é a landing page com manutenção.",
       "abertura": "Oi, tudo bem? Sou o {meu_nome}, faço sites {onde_atuo}. Vi a {empresa} no Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês direto. Posso te mandar uma ideia de como ficaria? Sem compromisso.",
       "previa": "Massa! Já montei uma prévia do site de vocês com as fotos e as avaliações do Google, dá uma olhada: {link_previa}\n\nSe quiser mudar alguma coisa, me fala que eu ajusto.",
       "proposta": "Show! Aqui tá a proposta com os pacotes, o prazo e como fica o pagamento: {link_proposta}\n\nQualquer dúvida me chama.",
@@ -19,6 +37,15 @@
   },
   "en": {
     "formal": {
+      "video": "I recorded a quick video showing how the {empresa} website would look. Here is the link to see it on your phone: {link_previa}",
+      "pos1": "Hi! Did you get a chance to see the website preview? Happy to adjust colors, photos or text.",
+      "pos2": "Hi! With a website, people searching for {categoria} on Google find {empresa} with photos, hours and a WhatsApp button. Shall I send the pricing?",
+      "pos3": "I'll keep the preview online for a few more days. If you'd like to move forward, just message me. Thanks!",
+      "obj_instagram": "Instagram stays, it's great. A website does something else: people searching for {categoria} on Google find websites, not Instagram profiles.",
+      "obj_caro": "I understand. The plan with maintenance has a smaller upfront payment and includes hosting and updates.",
+      "obj_pensar": "Sure, no rush. Is there any question about price, timeline or the preview I can help with?",
+      "obj_nao_preciso": "Great to hear business is good! A website also puts your hours, services and location in one link.",
+      "obj_preco": "Pricing and timelines for each option are here: {link_proposta}",
       "abertura": "Hi! I'm {meu_nome}{minha_empresa}, I build websites for small businesses. I found {empresa} on Google Maps{nota_texto} and noticed you don't have a website yet. Would you like me to send you a free mockup? No strings attached.",
       "previa": "Thanks for getting back to me! I put together a preview of the {empresa} website using the photos and reviews you already have on Google: {link_previa}",
       "proposta": "Here is the proposal with packages, timeline and payment: {link_proposta}",
@@ -29,6 +56,15 @@
   },
   "es": {
     "formal": {
+      "video": "Grabé un video corto mostrando cómo quedaría el sitio de {empresa}. Aquí el link para verlo en tu celular: {link_previa}",
+      "pos1": "¡Hola! ¿Pudiste ver la vista previa del sitio? Puedo ajustar colores, fotos o textos.",
+      "pos2": "¡Hola! Con el sitio, quien busca {categoria} en Google encuentra a {empresa} con fotos, horario y botón de WhatsApp. ¿Te envío los precios?",
+      "pos3": "Dejaré la vista previa en línea unos días más. Si quieren seguir, solo escríbeme. ¡Gracias!",
+      "obj_instagram": "Instagram sigue, es genial. El sitio hace otra cosa: quien busca {categoria} en Google encuentra sitios web, no perfiles de Instagram.",
+      "obj_caro": "Entiendo. El plan con mantenimiento tiene un pago inicial menor e incluye hosting y cambios.",
+      "obj_pensar": "Claro, sin prisa. ¿Tienes alguna duda sobre el precio, el plazo o la vista previa?",
+      "obj_nao_preciso": "¡Qué bueno que va bien! El sitio también reúne horario, servicios y ubicación en un solo link.",
+      "obj_preco": "Los precios y plazos de cada opción están aquí: {link_proposta}",
       "abertura": "¡Hola! Soy {meu_nome}{minha_empresa}, hago sitios web para pequeñas empresas. Encontré {empresa} en Google Maps{nota_texto} y vi que todavía no tienen sitio web. ¿Te envío una propuesta de cómo quedaría? Sin compromiso.",
       "previa": "¡Gracias por responder! Armé una vista previa del sitio de {empresa} con las fotos y reseñas que ya tienen en Google: {link_previa}",
       "proposta": "Aquí está la propuesta con los paquetes, el plazo y el pago: {link_proposta}",

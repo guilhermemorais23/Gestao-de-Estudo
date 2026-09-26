@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from database.connection import get_db
@@ -18,6 +18,8 @@ router = APIRouter()
 # Dias sem resposta até sugerir o próximo retorno
 DIAS_RETORNO1 = 2
 DIAS_RETORNO2 = 4
+# Depois da prévia: retornos no 1º, 3º e 7º dia (contados a partir do envio anterior)
+DIAS_POS = {0: 1, 1: 2, 2: 4}
 NUM_PASSO = {"abertura": 1, "retorno1": 2, "retorno2": 3}
 ENCERRADOS = ("fechado", "perdido")
 
@@ -29,15 +31,27 @@ def _agora():
 def _pendentes(consulta):
     """Leads sem resposta que já passaram do prazo do próximo retorno."""
     agora = _agora()
-    return consulta.filter(
-        LeadTable.respondeu.is_(False),
-        LeadTable.status.notin_(ENCERRADOS),
-        (
-            (LeadTable.passo == 1) & (LeadTable.ultimo_envio_em <= agora - timedelta(days=DIAS_RETORNO1))
-        ) | (
-            (LeadTable.passo == 2) & (LeadTable.ultimo_envio_em <= agora - timedelta(days=DIAS_RETORNO2))
-        ),
+    antes_da_resposta = LeadTable.respondeu.is_(False) & (
+        ((LeadTable.passo == 1) & (LeadTable.ultimo_envio_em <= agora - timedelta(days=DIAS_RETORNO1)))
+        | ((LeadTable.passo == 2) & (LeadTable.ultimo_envio_em <= agora - timedelta(days=DIAS_RETORNO2)))
     )
+    pos_previa = (
+        LeadTable.previa_enviada_em.isnot(None)
+        & LeadTable.proposta_escolha.is_(None)
+        & or_(*[
+            (func.coalesce(LeadTable.pos_passo, 0) == etapa) & (LeadTable.ultimo_envio_em <= agora - timedelta(days=dias))
+            for etapa, dias in DIAS_POS.items()
+        ])
+    )
+    return consulta.filter(LeadTable.status.notin_(ENCERRADOS), antes_da_resposta | pos_previa)
+
+
+def _hoje_brasilia() -> str:
+    return (datetime.now(timezone.utc) - timedelta(hours=3)).strftime("%Y-%m-%d")
+
+
+def envios_hoje(user: UserTable) -> int:
+    return (user.envios_hoje or 0) if user.envios_data == _hoje_brasilia() else 0
 
 
 @router.post("/buscar")
@@ -102,6 +116,8 @@ def resumo(user: UserTable = Depends(usuario_atual), db: Session = Depends(get_d
         .all()
     )
     resultado = {status: qtd for status, qtd in linhas}
+    resultado["_envios_hoje"] = envios_hoje(user)
+    resultado["_limite_diario"] = user.limite_diario or 20
     resultado["_pendentes"] = _pendentes(db.query(LeadTable).filter(LeadTable.user_id == user.id)).count()
     inicio_mes = _agora().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     resultado["_fechados_mes"] = (
@@ -131,6 +147,9 @@ def metricas(user: UserTable = Depends(usuario_atual), db: Session = Depends(get
             "questionario_respondido": sum(l.id in com_briefing for l in grupo),
             "proposta": sum(l.status in ("proposta", "fechado") for l in grupo),
             "fechados": sum(l.status == "fechado" for l in grupo),
+            "previa_enviada": sum(l.previa_enviada_em is not None for l in grupo),
+            "previa_aberta": sum(l.previa_vista_em is not None for l in grupo),
+            "proposta_vista": sum(l.proposta_vista_em is not None or l.proposta_escolha is not None for l in grupo),
             "parou_sem_resposta": {
                 str(p): sum((not l.respondeu) and l.passo == p for l in grupo) for p in (1, 2, 3)
             },
@@ -240,10 +259,23 @@ def gerar_previa(lead_id: int, user: UserTable = Depends(usuario_atual), db: Ses
 def registrar_envio(lead_id: int, dados: EnvioIn, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
     """Chamado quando você abre o WhatsApp com uma mensagem da sequência."""
     lead = _meu_lead(lead_id, user, db)
+    # contador diário para proteger o número de WhatsApp
+    hoje = _hoje_brasilia()
+    user.envios_hoje = (user.envios_hoje or 0) + 1 if user.envios_data == hoje else 1
+    user.envios_data = hoje
     if dados.whatsapp is not None and so_digitos(dados.whatsapp) != lead.whatsapp:
         lead.whatsapp = so_digitos(dados.whatsapp)
         lead.whatsapp_provavel = provavel_celular(lead.whatsapp) if lead.whatsapp else False
-    if dados.passo in ("previa", "proposta"):
+    momento = _agora()
+    if dados.passo == "previa":
+        lead.previa_enviada_em = lead.previa_enviada_em or momento
+    elif dados.passo == "proposta":
+        lead.proposta_enviada_em = lead.proposta_enviada_em or momento
+    if dados.passo in ("pos1", "pos2", "pos3"):
+        lead.pos_passo = max(lead.pos_passo or 0, int(dados.passo[-1]))
+    elif dados.passo == "objecao":
+        pass  # resposta a uma objeção: só registra o envio
+    elif dados.passo in ("previa", "proposta"):
         if not lead.respondeu:
             lead.respondeu = True
             lead.respondeu_no_passo = lead.passo or 1

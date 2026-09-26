@@ -12,6 +12,25 @@ const SEGMENTOS = {
   servicos: { fundo: '#f6f7f9', texto: '#151c28', destaque: '#1d4ed8', escuro: false, secoes: ['servicos', 'passos', 'avaliacoes', 'galeria', 'horarios'] },
 }
 
+// Cada modelo baixa só a própria fonte, para a prévia abrir mais rápido no celular
+const FONTES = {
+  beleza: 'DM+Serif+Display',
+  saude: 'Manrope:wght@500;700;800',
+  comida: 'Young+Serif',
+  servicos: 'Archivo:wght@600;800',
+}
+
+function useFonteDoSegmento(modelo) {
+  useEffect(() => {
+    if (!modelo || document.getElementById(`fonte-${modelo}`)) return
+    const link = document.createElement('link')
+    link.id = `fonte-${modelo}`
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?family=${FONTES[modelo]}&display=swap`
+    document.head.appendChild(link)
+  }, [modelo])
+}
+
 const PASSOS_SEGMENTO = {
   saude: ['Chame no WhatsApp e conte o que precisa', 'Escolha o melhor dia e horário', 'Seja atendido com calma'],
   servicos: ['Mande uma mensagem explicando o serviço', 'Receba o orçamento antes de começar', 'Serviço feito no prazo combinado'],
@@ -60,14 +79,14 @@ function horarioDeHoje(horarios) {
   return linha ? linha.split(/:\s(.+)/)[1] : null
 }
 
-function Foto({ foto, t, classe = '' }) {
+function Foto({ foto, t, classe = '', prioridade = false }) {
   if (!foto) return null
   if (!foto.url) {
     return <div className={`pv-foto pv-foto-exemplo ${classe}`}><span>{t.fotoExemplo}</span></div>
   }
   return (
     <figure className={`pv-foto ${classe}`}>
-      <img src={urlFoto(foto.url)} alt="" loading="lazy" />
+      <img src={urlFoto(foto.url)} alt="" loading={prioridade ? 'eager' : 'lazy'} fetchPriority={prioridade ? 'high' : 'auto'} decoding="async" />
       {foto.autor && <figcaption>{t.fotoDe}: {foto.autor}</figcaption>}
     </figure>
   )
@@ -209,7 +228,7 @@ function Site({ d, t, cfg }) {
       </nav>
 
       <header className={`pv-hero ${capa ? 'com-foto' : 'sem-foto'}`}>
-        {capa && <Foto foto={capa} t={t} classe="pv-capa" />}
+        {capa && <Foto foto={capa} t={t} classe="pv-capa" prioridade />}
         <div className="pv-hero-texto">
           <p className="pv-seg">{[d.categoria, d.bairro !== 'seu bairro' && d.bairro].filter(Boolean).join(', ')}</p>
           <h1>{tx.titulo}</h1>
@@ -233,6 +252,11 @@ function Site({ d, t, cfg }) {
         {instagram && <a className="pv-insta" href={`https://instagram.com/${instagram}`} target="_blank" rel="noreferrer">@{instagram}</a>}
         <p className="pv-copy">© {new Date().getFullYear()} {d.empresa}</p>
       </footer>
+
+      {/* barra fixa no celular: o botão de WhatsApp fica sempre à mão */}
+      <div className="pv-barra-fixa">
+        <a className="pv-botao" href={zap} target="_blank" rel="noreferrer"><IconeWhatsapp size={18} /> {botao}</a>
+      </div>
     </div>
   )
 }
@@ -240,6 +264,7 @@ function Site({ d, t, cfg }) {
 export default function Previa() {
   const { token } = useParams()
   const [d, setD] = useState(null)
+  useFonteDoSegmento(d?.modelo)
   const [erro, setErro] = useState('')
   const largo = typeof window !== 'undefined' && window.innerWidth > 900
   const [modo, setModo] = useState(largo ? 'celular' : 'cheio')

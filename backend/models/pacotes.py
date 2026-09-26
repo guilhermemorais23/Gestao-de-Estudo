@@ -1,5 +1,21 @@
 """Pacotes padrão da proposta. Você edita preços e itens em Configurações."""
 
+PACOTE_GOOGLE = {
+    "id": "google",
+    "nome": "Otimização do Google",
+    "preco": 250,
+    "mensalidade": 0,
+    "prazo_dias": 3,
+    "descricao": "Deixa o perfil da empresa no Google Maps completo para aparecer melhor nas buscas do bairro.",
+    "itens": [
+        "Descrição completa com os serviços",
+        "Horários, categorias e área de atendimento revisados",
+        "Fotos organizadas",
+        "Link direto para o WhatsApp",
+        "Estratégia simples para ganhar mais avaliações",
+    ],
+}
+
 PACOTES_PADRAO = [
     {
         "id": "landing",
@@ -45,4 +61,5 @@ PACOTES_PADRAO = [
             "Hospedagem, domínio e alterações todo mês",
         ],
     },
+    PACOTE_GOOGLE,
 ]

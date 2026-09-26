@@ -665,3 +665,40 @@ label.check input { width: auto; accent-color: var(--destaque); }
 .pv-botao { transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
 .pv-botao:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--pv-destaque) 80%, transparent); filter: brightness(1.05); }
 .pv-flutuante { animation: pv-subir .6s 1s ease-out both; }
+.subpassos { display: flex; flex-wrap: wrap; gap: .4rem; }
+.roteiro { border: 1px solid var(--linha); border-radius: var(--raio); padding: .9rem 1rem; display: flex; flex-direction: column; gap: .6rem; }
+.roteiro-topo { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.roteiro pre { margin: 0; white-space: pre-wrap; font-family: var(--fonte); font-size: .88rem; line-height: 1.55; background: var(--fundo); padding: .8rem; border-radius: var(--raio-p); }
+.alerta.forte { display: flex; gap: .5rem; align-items: flex-start; background: var(--morno-suave); padding: .6rem .8rem; border-radius: var(--raio-p); }
+.alerta.forte svg { flex: none; margin-top: 2px; }
+.envios-dia { display: flex; justify-content: space-between; align-items: baseline; font-size: .8rem; color: var(--texto-2); padding-top: .55rem; border-top: 1px solid var(--linha); }
+.envios-dia b { font-variant-numeric: tabular-nums; color: var(--texto); }
+.envios-dia small { color: var(--texto-3); font-weight: 500; }
+.envios-dia.cheio, .envios-dia.cheio b { color: var(--morno); }
+/* barra fixa de WhatsApp na prévia: aparece no celular, some no computador */
+.pv-barra-fixa {
+  position: sticky; bottom: 0; z-index: 5; padding: .7rem 1rem calc(.7rem + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--pv-fundo) 88%, transparent); backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in srgb, var(--pv-texto) 10%, transparent);
+}
+.pv-barra-fixa .pv-botao { width: 100%; }
+.pv-celular .pv-flutuante { display: none; }
+@container (max-width: 719px) {
+  .pv-flutuante { display: none; }
+  .pv-rodape { padding-bottom: 3rem; }
+}
+@container (min-width: 720px) {
+  .pv-barra-fixa { display: none; }
+}
+.metas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+.meta-etapa { border: 1px solid var(--linha); border-radius: var(--raio); padding: 1rem; display: flex; flex-direction: column; gap: .2rem; border-top: 3px solid var(--linha-forte); }
+.meta-etapa.ok { border-top-color: var(--destaque); }
+.meta-etapa.baixo { border-top-color: var(--perigo); background: #fdf6f5; }
+.meta-nome { font-size: .85rem; color: var(--texto-2); }
+.meta-etapa b { font-family: var(--fonte-titulo); font-size: 2rem; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.meta-etapa.ok b { color: var(--destaque); }
+.meta-etapa.baixo b { color: var(--perigo); }
+.meta-alvo { font-size: .78rem; color: var(--texto-3); }
+.meta-etapa p { font-size: .82rem; color: var(--texto-2); margin-top: .35rem; }
+.modal > * { flex-shrink: 0; }
+.passos { flex-wrap: wrap; overflow: visible; row-gap: 0; }
