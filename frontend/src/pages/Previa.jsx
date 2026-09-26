@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Clock, MapPin, Monitor, Smartphone, Star } from 'lucide-react'
 import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
@@ -77,7 +77,31 @@ function urlFoto(url) {
   return url.startsWith('/api') ? `${import.meta.env.VITE_API_URL || ''}${url}` : url
 }
 
+// Revela cada seção com uma subida suave quando ela entra na tela (funciona dentro da moldura de celular também)
+function useRevelar(ref) {
+  useEffect(() => {
+    const raiz = ref.current
+    if (!raiz || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return
+    const alvos = raiz.querySelectorAll('.pv-sec, .pv-rodape')
+    alvos.forEach((el) => el.classList.add('pv-revelar'))
+    raiz.classList.add('animado')
+    const obs = new IntersectionObserver(
+      (entradas) => entradas.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visivel')
+          obs.unobserve(e.target)
+        }
+      }),
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    )
+    alvos.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
+  }, [ref])
+}
+
 function Site({ d, t, cfg }) {
+  const ref = useRef(null)
+  useRevelar(ref)
   const tx = d.textos
   const zap = linkWhatsapp(d.whatsapp, '')
   const botao = tx.texto_botao || 'Chamar no WhatsApp'
@@ -178,7 +202,7 @@ function Site({ d, t, cfg }) {
   }
 
   return (
-    <div className={`pv-site pv-${d.modelo} ${cfg.escuro ? 'escuro' : ''}`}>
+    <div ref={ref} className={`pv-site pv-${d.modelo} ${cfg.escuro ? 'escuro' : ''}`}>
       <nav className="pv-nav">
         <span className="pv-marca"><span className="pv-mono">{d.empresa.slice(0, 1).toUpperCase()}</span>{d.empresa}</span>
         <a className="pv-botao pequeno" href={zap} target="_blank" rel="noreferrer"><IconeWhatsapp size={15} /> {botao}</a>

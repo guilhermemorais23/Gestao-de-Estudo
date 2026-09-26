@@ -636,3 +636,32 @@ label.check input { width: auto; accent-color: var(--destaque); }
 .pv-celular .pv-nav { padding-top: 2.6rem; }
 .dica { display: flex; flex-direction: column; gap: .7rem; }
 .dica .ideias-lista { align-items: center; }
+
+/* animações da prévia: entrada do topo e seções revelando ao descer */
+@keyframes pv-subir { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes pv-aproximar { from { transform: scale(1.08); } to { transform: scale(1); } }
+.pv-hero-texto > * { animation: pv-subir .8s cubic-bezier(.2, .7, .2, 1) both; }
+.pv-hero-texto > :nth-child(1) { animation-delay: .05s; }
+.pv-hero-texto > :nth-child(2) { animation-delay: .15s; }
+.pv-hero-texto > :nth-child(3) { animation-delay: .28s; }
+.pv-hero-texto > :nth-child(4) { animation-delay: .4s; }
+.pv-hero-texto > :nth-child(5) { animation-delay: .5s; }
+.pv-hero.com-foto .pv-capa img { animation: pv-aproximar 2.4s cubic-bezier(.2, .7, .2, 1) both; }
+.pv-nav { animation: pv-subir .6s ease-out both; }
+
+.animado .pv-revelar { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
+.animado .pv-revelar.visivel { opacity: 1; transform: none; }
+/* itens de listas e cartões entram em cascata */
+.animado .pv-revelar :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li) {
+  opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li) { opacity: 1; transform: none; }
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li):nth-child(2) { transition-delay: .08s; }
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li):nth-child(3) { transition-delay: .16s; }
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li):nth-child(4) { transition-delay: .24s; }
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li):nth-child(5) { transition-delay: .32s; }
+.animado .pv-revelar.visivel :is(.pv-card, .pv-avaliacao, .pv-difs li, .pv-precos li, .pv-cardapio article, .pv-passos li, .pv-galeria .pv-foto, .pv-horarios li):nth-child(n+6) { transition-delay: .4s; }
+/* botões respondem ao toque/cursor */
+.pv-botao { transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+.pv-botao:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--pv-destaque) 80%, transparent); filter: brightness(1.05); }
+.pv-flutuante { animation: pv-subir .6s 1s ease-out both; }
