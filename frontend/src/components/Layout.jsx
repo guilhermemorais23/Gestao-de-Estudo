@@ -25,7 +25,7 @@ const GRUPOS = [
   },
 ]
 
-function MetaDoMes({ fechados, meta }) {
+function MetaDoMes({ fechados, meta, enviados, limite }) {
   const pct = Math.min(100, Math.round((fechados / meta) * 100))
   const falta = Math.max(0, meta - fechados)
   const mes = new Date().toLocaleDateString('pt-BR', { month: 'long' })
@@ -39,6 +39,10 @@ function MetaDoMes({ fechados, meta }) {
         <span style={{ width: `${pct}%` }} />
       </div>
       <p>{falta === 0 ? 'Meta batida. Parabéns!' : `Faltam ${falta} ${falta === 1 ? 'cliente' : 'clientes'}.`}</p>
+      <div className={`envios-dia ${enviados >= limite ? 'cheio' : ''}`} title="Limite para proteger seu número de WhatsApp">
+        <span>Mensagens hoje</span>
+        <b>{enviados}<small>/{limite}</small></b>
+      </div>
     </div>
   )
 }
@@ -52,8 +56,10 @@ export default function Layout() {
     api('/auth/eu').then(setUsuario).catch(() => {})
   }, [])
 
+  const atualizarResumo = () => api('/leads/resumo').then(setResumo).catch(() => {})
+
   useEffect(() => {
-    api('/leads/resumo').then(setResumo).catch(() => {})
+    atualizarResumo()
   }, [local.pathname])
 
   return (
@@ -79,7 +85,14 @@ export default function Layout() {
             </div>
           ))}
         </nav>
-        {usuario && <MetaDoMes fechados={resumo._fechados_mes || 0} meta={usuario.meta_mensal || 4} />}
+        {usuario && (
+          <MetaDoMes
+            fechados={resumo._fechados_mes || 0}
+            meta={usuario.meta_mensal || 4}
+            enviados={resumo._envios_hoje || 0}
+            limite={resumo._limite_diario || usuario.limite_diario || 20}
+          />
+        )}
         {usuario && (
           <div className="conta">
             <div className="avatar">{usuario.nome.slice(0, 1).toUpperCase()}</div>
@@ -107,7 +120,7 @@ export default function Layout() {
           </div>
         )}
         <main className="conteudo" key={local.pathname}>
-          {usuario ? <Outlet context={{ usuario, setUsuario }} /> : <p className="muted">Carregando</p>}
+          {usuario ? <Outlet context={{ usuario, setUsuario, resumo, atualizarResumo }} /> : <p className="muted">Carregando</p>}
         </main>
       </div>
     </div>

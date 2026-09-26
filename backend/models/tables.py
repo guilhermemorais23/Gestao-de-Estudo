@@ -48,6 +48,10 @@ class UserTable(Base):
     pix_nome = Column(String(60), default="")
     pix_cidade = Column(String(40), default="JOAO PESSOA")
     entrada_percentual = Column(Integer, default=50)
+    # Proteção do número de WhatsApp: limite de mensagens por dia
+    limite_diario = Column(Integer, default=20)
+    envios_hoje = Column(Integer, default=0)
+    envios_data = Column(String(10), default="")  # AAAA-MM-DD no horário de Brasília
     modelos = Column(Text, default=modelos_padrao)  # JSON: idioma -> tom -> passo -> texto
     criado_em = Column(DateTime, default=agora)
 
@@ -92,6 +96,9 @@ class LeadTable(Base):
     previa_vista_em = Column(DateTime, nullable=True)  # primeira vez que o cliente abriu
     previa_ultima_vista_em = Column(DateTime, nullable=True)
     previa_visualizacoes = Column(Integer, default=0)
+    previa_enviada_em = Column(DateTime, nullable=True)
+    proposta_enviada_em = Column(DateTime, nullable=True)
+    pos_passo = Column(Integer, default=0)  # retornos depois da prévia: 0 nenhum, 1, 2, 3
     proposta_vista_em = Column(DateTime, nullable=True)
     proposta_escolha = Column(String(40), nullable=True)
     proposta_escolha_em = Column(DateTime, nullable=True)

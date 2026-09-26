@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 
+// Metas de conversão de cada etapa em relação à anterior (estimativas iniciais, ajuste com seus números)
 const ETAPAS = [
   { id: 'contatados', nome: 'Receberam a 1ª mensagem' },
-  { id: 'responderam', nome: 'Responderam' },
-  { id: 'questionario_enviado', nome: 'Receberam o questionário' },
-  { id: 'questionario_respondido', nome: 'Fizeram o questionário' },
-  { id: 'proposta', nome: 'Receberam proposta' },
-  { id: 'fechados', nome: 'Fecharam' },
+  { id: 'responderam', nome: 'Responderam', meta: 15, dica: 'Teste o outro tom, mande em outro horário ou troque o segmento.' },
+  { id: 'previa_aberta', nome: 'Abriram a prévia', meta: 60, dica: 'Mande o vídeo junto: ver a prévia sendo mostrada dá vontade de abrir.' },
+  { id: 'proposta_vista', nome: 'Abriram a proposta', meta: 30, dica: 'Faça os retornos do 1º, 3º e 7º dia e ofereça ajustes na prévia.' },
+  { id: 'fechados', nome: 'Fecharam', meta: 30, dica: 'Responda rápido quando abrirem a proposta e use as respostas prontas para objeções.' },
 ]
 const MSGS = { 1: '1ª mensagem', 2: 'Retorno 1', 3: 'Retorno 2' }
 const DEPOIS = { 1: 'Depois da 1ª mensagem', 2: 'Depois do retorno 1', 3: 'Depois do retorno 2' }
@@ -19,7 +19,7 @@ const CENARIOS = {
 }
 
 const reais = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
-const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '–')
+const pct = (a, b) => (b ? `${Math.min(100, Math.round((a / b) * 100))}%` : '–')
 
 function calcular(c) {
   const conversao = (c.resposta / 100) * (c.questionario / 100) * (c.fechamento / 100)
@@ -85,6 +85,30 @@ export default function Resultados() {
 
       {m && g.contatados > 0 && (
         <>
+          <div className="bloco">
+            <h2>Metas do funil</h2>
+            <div className="metas">
+              {ETAPAS.slice(1).map((e, i) => {
+                const anterior = g[ETAPAS[i].id]
+                const taxa = anterior ? Math.min(100, Math.round((g[e.id] / anterior) * 100)) : null
+                const estado = taxa === null || anterior < 10 ? 'poucos' : taxa >= e.meta ? 'ok' : 'baixo'
+                return (
+                  <div key={e.id} className={`meta-etapa ${estado}`}>
+                    <span className="meta-nome">{e.nome}</span>
+                    <b>{taxa === null ? '–' : `${taxa}%`}</b>
+                    <span className="meta-alvo">meta: {e.meta}% ou mais</span>
+                    <p>
+                      {estado === 'poucos' && 'Poucos dados ainda. Continue mandando.'}
+                      {estado === 'ok' && 'Dentro da meta.'}
+                      {estado === 'baixo' && e.dica}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="muted pequeno">Cada porcentagem é sobre a etapa anterior. As metas são estimativas iniciais baseadas em pesquisas de vendas para pequenos negócios.</p>
+          </div>
+
           <div className="bloco">
             <h2>Onde as pessoas param</h2>
             <div className="tabela-wrap sem-borda">

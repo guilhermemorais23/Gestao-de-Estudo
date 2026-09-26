@@ -8,6 +8,9 @@ Passos da sequência:
   proposta      manda os pacotes, o prazo e o pagamento
   retorno1      2 a 3 dias sem resposta: traz um argumento novo
   retorno2      5 a 7 dias sem resposta: encerra com educação
+  video         texto que acompanha o vídeo curto mostrando a prévia (o que mais aumenta resposta)
+  pos1..pos3    retornos depois da prévia: 1º, 3º e 7º dia
+  obj_*         respostas prontas para as objeções mais comuns
 
 Campos que podem ser usados no texto:
   {saudacao} Bom dia / Boa tarde / Boa noite      {empresa} nome do lead
@@ -18,12 +21,53 @@ Campos que podem ser usados no texto:
   {link} link do questionário      {link_previa} link da prévia      {link_proposta} link da proposta
 """
 
-PASSOS = ["abertura", "previa", "questionario", "proposta", "retorno1", "retorno2"]
+PASSOS = [
+    "abertura", "previa", "video", "proposta", "questionario", "retorno1", "retorno2", "pos1", "pos2", "pos3",
+    "obj_instagram", "obj_caro", "obj_pensar", "obj_nao_preciso", "obj_preco",
+]
 TONS = ["formal", "descontraido"]
 
 MODELOS_PADRAO = {
     "pt": {
         "formal": {
+            "video": (
+                "Gravei um vídeo rápido mostrando como ficaria o site da {empresa}. Se preferir ver no seu "
+                "celular, o link é este: {link_previa}"
+            ),
+            "pos1": (
+                "{saudacao}! Conseguiu ver a prévia do site da {empresa}? Se quiser, ajusto cores, fotos ou "
+                "textos do jeito de vocês."
+            ),
+            "pos2": (
+                "{saudacao}! Uma coisa que não comentei: com o site, quem procura {categoria} no Google passa "
+                "a encontrar a {empresa} com fotos, horário e botão de WhatsApp. Posso mandar a proposta com "
+                "os valores?"
+            ),
+            "pos3": (
+                "{saudacao}! Vou deixar a prévia do site no ar por mais alguns dias. Se quiserem seguir, é só "
+                "me chamar por aqui. Obrigado pela atenção!"
+            ),
+            "obj_instagram": (
+                "O Instagram continua sendo ótimo e não sai do ar. O site resolve outra coisa: quem pesquisa "
+                "{categoria} no Google encontra quem tem site, não o perfil do Instagram. Um traz seguidores, "
+                "o outro traz quem está procurando o serviço agora."
+            ),
+            "obj_caro": (
+                "Entendo. Tenho o pacote com manutenção, que tem a entrada menor e já inclui hospedagem e "
+                "alterações. Se o site trouxer um cliente novo por semana, ele se paga no primeiro mês."
+            ),
+            "obj_pensar": (
+                "Claro, sem pressa. Para eu te ajudar a decidir: ficou alguma dúvida sobre o preço, o prazo "
+                "ou alguma coisa na prévia?"
+            ),
+            "obj_nao_preciso": (
+                "Que bom que o movimento está bom! O site também ajuda a organizar: horários, serviços e "
+                "localização num link só, sem precisar responder as mesmas perguntas no WhatsApp."
+            ),
+            "obj_preco": (
+                "Os valores estão na proposta, com as opções e o prazo de cada uma: {link_proposta}\n\n"
+                "A mais escolhida é a landing page com manutenção."
+            ),
             "abertura": (
                 "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites "
                 "{onde_atuo}. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não "
@@ -53,6 +97,30 @@ MODELOS_PADRAO = {
             ),
         },
         "descontraido": {
+            "video": (
+                "Gravei um vídeo rapidinho mostrando como ficaria o site de vocês! Se quiser ver no celular, "
+                "o link é esse: {link_previa}"
+            ),
+            "pos1": "Oi! Conseguiu dar uma olhada na prévia? Se quiser mudar cor, foto ou texto, me fala que eu ajusto.",
+            "pos2": (
+                "Oi! Esqueci de comentar: com o site, quem procura {categoria} no Google acha vocês com foto, "
+                "horário e botão direto pro WhatsApp. Quer que eu mande os valores?"
+            ),
+            "pos3": "Vou deixar a prévia no ar mais uns dias, beleza? Se quiserem seguir, é só me chamar. Valeu!",
+            "obj_instagram": (
+                "O Instagram continua, é ótimo! O site é pra outra coisa: quem pesquisa {categoria} no Google "
+                "acha quem tem site, não o Instagram. Um traz seguidor, o outro traz cliente procurando agora."
+            ),
+            "obj_caro": (
+                "Entendo! Tem o pacote com manutenção, que tem entrada menor e já inclui hospedagem e "
+                "alterações. Se vier um cliente novo por semana pelo Google, ele se paga no primeiro mês."
+            ),
+            "obj_pensar": "De boa, sem pressa! Só pra eu te ajudar: ficou dúvida no preço, no prazo ou em algo da prévia?",
+            "obj_nao_preciso": (
+                "Que massa que o movimento tá bom! O site ajuda a organizar também: horário, serviços e "
+                "localização num link só, sem responder a mesma pergunta 20 vezes no WhatsApp."
+            ),
+            "obj_preco": "Tá tudo na proposta, com as opções e o prazo: {link_proposta}\n\nA mais pedida é a landing page com manutenção.",
             "abertura": (
                 "Oi, tudo bem? Sou o {meu_nome}, faço sites {onde_atuo}. Vi a {empresa} no "
                 "Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês "
@@ -83,6 +151,15 @@ MODELOS_PADRAO = {
     },
     "en": {
         "formal": {
+            "video": "I recorded a quick video showing how the {empresa} website would look. Here is the link to see it on your phone: {link_previa}",
+            "pos1": "Hi! Did you get a chance to see the website preview? Happy to adjust colors, photos or text.",
+            "pos2": "Hi! With a website, people searching for {categoria} on Google find {empresa} with photos, hours and a WhatsApp button. Shall I send the pricing?",
+            "pos3": "I'll keep the preview online for a few more days. If you'd like to move forward, just message me. Thanks!",
+            "obj_instagram": "Instagram stays, it's great. A website does something else: people searching for {categoria} on Google find websites, not Instagram profiles.",
+            "obj_caro": "I understand. The plan with maintenance has a smaller upfront payment and includes hosting and updates.",
+            "obj_pensar": "Sure, no rush. Is there any question about price, timeline or the preview I can help with?",
+            "obj_nao_preciso": "Great to hear business is good! A website also puts your hours, services and location in one link.",
+            "obj_preco": "Pricing and timelines for each option are here: {link_proposta}",
             "abertura": (
                 "Hi! I'm {meu_nome}{minha_empresa}, I build websites for small businesses. I found "
                 "{empresa} on Google Maps{nota_texto} and noticed you don't have a website yet. "
@@ -106,6 +183,15 @@ MODELOS_PADRAO = {
     },
     "es": {
         "formal": {
+            "video": "Grabé un video corto mostrando cómo quedaría el sitio de {empresa}. Aquí el link para verlo en tu celular: {link_previa}",
+            "pos1": "¡Hola! ¿Pudiste ver la vista previa del sitio? Puedo ajustar colores, fotos o textos.",
+            "pos2": "¡Hola! Con el sitio, quien busca {categoria} en Google encuentra a {empresa} con fotos, horario y botón de WhatsApp. ¿Te envío los precios?",
+            "pos3": "Dejaré la vista previa en línea unos días más. Si quieren seguir, solo escríbeme. ¡Gracias!",
+            "obj_instagram": "Instagram sigue, es genial. El sitio hace otra cosa: quien busca {categoria} en Google encuentra sitios web, no perfiles de Instagram.",
+            "obj_caro": "Entiendo. El plan con mantenimiento tiene un pago inicial menor e incluye hosting y cambios.",
+            "obj_pensar": "Claro, sin prisa. ¿Tienes alguna duda sobre el precio, el plazo o la vista previa?",
+            "obj_nao_preciso": "¡Qué bueno que va bien! El sitio también reúne horario, servicios y ubicación en un solo link.",
+            "obj_preco": "Los precios y plazos de cada opción están aquí: {link_proposta}",
             "abertura": (
                 "¡Hola! Soy {meu_nome}{minha_empresa}, hago sitios web para pequeñas empresas. Encontré "
                 "{empresa} en Google Maps{nota_texto} y vi que todavía no tienen sitio web. "

@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from models.modelos_mensagem import MODELOS_PADRAO
 
 STATUS_LEAD = Literal["novo", "contatado", "respondeu", "questionario", "proposta", "fechado", "perdido"]
-PASSO = Literal["abertura", "previa", "questionario", "proposta", "retorno1", "retorno2"]
+PASSO = Literal["abertura", "previa", "questionario", "proposta", "retorno1", "retorno2", "pos1", "pos2", "pos3", "objecao"]
 
 
 class RegistroIn(BaseModel):
@@ -39,6 +39,7 @@ class UsuarioOut(BaseModel):
     pix_nome: str | None = ""
     pix_cidade: str | None = ""
     entrada_percentual: int | None = 50
+    limite_diario: int | None = 20
 
     @field_validator("modelos", mode="before")
     @classmethod
@@ -68,6 +69,7 @@ class ConfigIn(BaseModel):
     pix_nome: str | None = Field(default=None, max_length=60)
     pix_cidade: str | None = Field(default=None, max_length=40)
     entrada_percentual: int | None = Field(default=None, ge=0, le=100)
+    limite_diario: int | None = Field(default=None, ge=1, le=500)
 
 
 class PacoteIn(BaseModel):
@@ -125,6 +127,9 @@ class LeadOut(BaseModel):
     previa_ultima_vista_em: datetime | None = None
     previa_visualizacoes: int | None = 0
     proposta_vista_em: datetime | None = None
+    previa_enviada_em: datetime | None = None
+    proposta_enviada_em: datetime | None = None
+    pos_passo: int | None = 0
     proposta_escolha: str | None = None
     proposta_escolha_em: datetime | None = None
 

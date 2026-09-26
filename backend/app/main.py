@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
 from database.connection import Base, engine  # noqa: E402
+from database.migracao import adicionar_colunas_novas  # noqa: E402
 from models import tables  # noqa: E402,F401  (registra as tabelas)
 from routes.auth_routes import router as auth_router  # noqa: E402
 from routes.briefing_routes import publico as publico_router  # noqa: E402
@@ -19,6 +20,7 @@ from routes.leads_routes import router as leads_router  # noqa: E402
 from routes.publico_routes import router as previa_router  # noqa: E402
 
 Base.metadata.create_all(bind=engine)
+adicionar_colunas_novas(engine, Base)
 
 app = FastAPI(title="Prospecta PB — API")
 
