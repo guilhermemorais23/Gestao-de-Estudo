@@ -10,12 +10,16 @@ para fechar a venda de sites e sistemas.
    Só ficam as empresas **sem site** (ou com só Instagram/Facebook). Cada uma recebe um **score 0–100**
    (sem site, celular com WhatsApp, muitas avaliações = lead quente).
 2. **Meus leads** — mini-CRM com funil: novo → contatado → respondeu → proposta → fechado/perdido, com notas.
-3. **WhatsApp** — mensagem pronta (PT/EN/ES, editável em Configurações) com link `wa.me` e **QR code**
-   (escaneia com o celular e a conversa abre com o texto pronto).
+3. **Abordagem em sequência** — 1ª mensagem (curta, sem link) → questionário (só depois que a pessoa
+   responde) → retorno 1 (2 dias sem resposta) → retorno 2 (encerramento). Cada lead recebe um **tom
+   sorteado** (formal ou descontraído) para comparar qual converte mais. Tudo abre no WhatsApp via `wa.me`
+   e **QR code**, e cada envio fica registrado. O painel avisa quem está esperando retorno.
 4. **Questionário** — o cliente responde pelo link (`/q/<token>`); o lead muda para "respondeu".
 5. **Prévia** — as respostas viram uma landing page (`/lp/<token>`) com cores, serviços, mapa e botão
    de WhatsApp. O cliente é levado ao **seu** WhatsApp com o resumo das respostas.
-6. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, com mensagem em inglês ou espanhol.
+6. **Resultados** — funil por tom (quantos responderam, fizeram o questionário, fecharam), em qual
+   mensagem as pessoas respondem ou param, e uma calculadora de metas (preço, clientes/mês, mensalidade).
+7. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, com mensagem em inglês ou espanhol.
 
 ## Rodando
 
@@ -32,6 +36,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+> Se você já tinha rodado uma versão anterior, apague `backend/prospecta.db` antes: as tabelas mudaram.
 
 Abra http://localhost:5173, clique em **Criar conta** (só o primeiro usuário pode se cadastrar;
 para liberar mais, use `PERMITIR_CADASTRO=1`). Depois configure seu WhatsApp em **Configurações**.

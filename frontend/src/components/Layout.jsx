@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Globe, Inbox, LogOut, MapPin, Settings, Users } from 'lucide-react'
+import { ChartNoAxesColumn, Globe, Inbox, LogOut, MapPin, Settings, Users } from 'lucide-react'
 import { DEMO, api, sair } from '../api'
 
 const ABAS = [
@@ -8,6 +8,7 @@ const ABAS = [
   { to: '/exterior', label: 'Outras regiões', icone: Globe },
   { to: '/leads', label: 'Leads', icone: Users },
   { to: '/respostas', label: 'Respostas', icone: Inbox },
+  { to: '/resultados', label: 'Resultados', icone: ChartNoAxesColumn },
   { to: '/config', label: 'Configurações', icone: Settings },
 ]
 

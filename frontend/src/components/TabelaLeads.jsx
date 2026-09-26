@@ -3,12 +3,14 @@ import { useOutletContext } from 'react-router-dom'
 import { ExternalLink, Trash2 } from 'lucide-react'
 import { api } from '../api'
 import WhatsappModal from './WhatsappModal'
+import { TONS, situacaoContato } from '../mensagens'
 import { IconeWhatsapp } from './Icones'
 
 export const STATUS = {
   novo: 'Novo',
   contatado: 'Contatado',
   respondeu: 'Respondeu',
+  questionario: 'Fez o questionário',
   proposta: 'Proposta enviada',
   fechado: 'Fechado',
   perdido: 'Perdido',
@@ -52,7 +54,6 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
               <th>Contato</th>
               <th>No Google</th>
               {mostrarGestao && <th>Etapa</th>}
-              {mostrarGestao && <th>Anotações</th>}
               <th><span className="sr">Ações</span></th>
             </tr>
           </thead>
@@ -63,6 +64,7 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
                 <tr key={l.id}>
                   <td className="col-empresa">
                     <strong>{l.nome}</strong>
+                    {mostrarGestao && l.notas && <span className="sub nota-lead">{l.notas}</span>}
                     <span className="sub">{[l.categoria, l.endereco || l.cidade].filter(Boolean).join(', ')}</span>
                     <span className="sub">
                       {l.so_rede_social ? (
@@ -81,6 +83,12 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
                   <td className="nowrap">
                     {l.telefone || <span className="muted">Sem telefone</span>}
                     <span className="sub">{l.whatsapp_provavel ? 'Celular, deve ter WhatsApp' : l.telefone ? 'Parece fixo' : ''}</span>
+                    {mostrarGestao && situacaoContato(l) && (
+                      <span className={`situacao ${l.respondeu ? 'ok' : ''}`}>
+                        {situacaoContato(l)}
+                        {l.idioma === 'pt' && l.passo > 0 && <span className="muted">, tom {TONS[l.tom].toLowerCase()}</span>}
+                      </span>
+                    )}
                   </td>
                   <td className="nowrap">
                     {l.avaliacao ? (
@@ -103,20 +111,9 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
                       </select>
                     </td>
                   )}
-                  {mostrarGestao && (
-                    <td>
-                      <textarea
-                        aria-label="Anotações"
-                        className="notas"
-                        defaultValue={l.notas}
-                        placeholder="Anotar"
-                        onBlur={(e) => e.target.value !== l.notas && mudar(l, { notas: e.target.value })}
-                      />
-                    </td>
-                  )}
                   <td className="col-acoes">
                     <button className="btn btn-pequeno" onClick={() => setAberto(l)}>
-                      <IconeWhatsapp size={15} /> Abordar
+                      <IconeWhatsapp size={15} /> {l.passo > 0 || l.respondeu ? 'Continuar' : 'Abordar'}
                     </button>
                     {mostrarGestao && (confirmando === l.id ? (
                       <Fragment>

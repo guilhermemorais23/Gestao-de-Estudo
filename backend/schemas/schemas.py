@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+import json
 
-STATUS_LEAD = Literal["novo", "contatado", "respondeu", "proposta", "fechado", "perdido"]
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+STATUS_LEAD = Literal["novo", "contatado", "respondeu", "questionario", "proposta", "fechado", "perdido"]
+PASSO = Literal["abertura", "questionario", "retorno1", "retorno2"]
 
 
 class RegistroIn(BaseModel):
@@ -25,18 +28,19 @@ class UsuarioOut(BaseModel):
     empresa: str | None
     whatsapp: str | None
     token_publico: str
-    msg_pt: str | None
-    msg_en: str | None
-    msg_es: str | None
+    modelos: dict[str, Any]
+
+    @field_validator("modelos", mode="before")
+    @classmethod
+    def _json(cls, v):
+        return json.loads(v) if isinstance(v, str) else (v or {})
 
 
 class ConfigIn(BaseModel):
     nome: str | None = None
     empresa: str | None = None
     whatsapp: str | None = None
-    msg_pt: str | None = None
-    msg_en: str | None = None
-    msg_es: str | None = None
+    modelos: dict[str, dict[str, dict[str, str]]] | None = None
 
 
 class BuscaIn(BaseModel):
@@ -72,6 +76,12 @@ class LeadOut(BaseModel):
     notas: str | None
     token: str
     criado_em: datetime
+    tom: str
+    passo: int
+    ultimo_envio_em: datetime | None
+    respondeu: bool
+    respondeu_no_passo: int | None
+    questionario_enviado: bool
 
 
 class LeadUpdate(BaseModel):
@@ -79,6 +89,12 @@ class LeadUpdate(BaseModel):
     notas: str | None = None
     whatsapp: str | None = None
     idioma: Literal["pt", "en", "es"] | None = None
+    tom: Literal["formal", "descontraido"] | None = None
+
+
+class EnvioIn(BaseModel):
+    passo: PASSO
+    whatsapp: str | None = None
 
 
 class LeadManualIn(BaseModel):

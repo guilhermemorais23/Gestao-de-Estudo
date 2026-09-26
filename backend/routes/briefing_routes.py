@@ -70,8 +70,11 @@ def responder_questionario(token: str, dados: BriefingIn, db: Session = Depends(
         respostas=json.dumps(dados.respostas, ensure_ascii=False),
     )
     db.add(b)
-    if lead and lead.status in ("novo", "contatado"):
-        lead.status = "respondeu"
+    if lead:
+        if not lead.respondeu:
+            lead.respondeu, lead.respondeu_no_passo = True, lead.passo or 1
+        if lead.status in ("novo", "contatado", "respondeu"):
+            lead.status = "questionario"
     db.commit()
     db.refresh(b)
     return {"token": b.token, "whatsapp_vendedor": user.whatsapp or ""}

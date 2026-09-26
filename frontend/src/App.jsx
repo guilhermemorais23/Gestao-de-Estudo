@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Prospectar from './pages/Prospectar'
 import Leads from './pages/Leads'
 import Respostas from './pages/Respostas'
+import Resultados from './pages/Resultados'
 import Config from './pages/Config'
 import Questionario from './pages/Questionario'
 import LandingPreview from './pages/LandingPreview'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/exterior" element={<Prospectar regiao="exterior" />} />
           <Route path="/leads" element={<Leads />} />
           <Route path="/respostas" element={<Respostas />} />
+          <Route path="/resultados" element={<Resultados />} />
           <Route path="/config" element={<Config />} />
         </Route>
 

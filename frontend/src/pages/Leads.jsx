@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import { Plus, Search } from 'lucide-react'
+import { Clock, Plus, Search } from 'lucide-react'
 import TabelaLeads, { STATUS } from '../components/TabelaLeads'
 
 export default function Leads() {
   const [leads, setLeads] = useState([])
   const [resumo, setResumo] = useState({})
-  const [filtro, setFiltro] = useState({ status: '', regiao: '', q: '' })
+  const [filtro, setFiltro] = useState({ status: '', regiao: '', q: '', pendentes: '' })
   const [novo, setNovo] = useState(null)
 
   async function carregar() {
@@ -46,13 +46,27 @@ export default function Leads() {
           <button
             key={v}
             className={filtro.status === v ? 'etapa ativa' : 'etapa'}
-            onClick={() => setFiltro({ ...filtro, status: filtro.status === v ? '' : v })}
+            onClick={() => setFiltro({ ...filtro, pendentes: '', status: filtro.status === v ? '' : v })}
           >
             <span>{t}</span>
             <b>{resumo[v] || 0}</b>
           </button>
         ))}
       </div>
+
+      {resumo._pendentes > 0 && (
+        <button
+          className={filtro.pendentes ? 'lembrete ativo' : 'lembrete'}
+          onClick={() => setFiltro({ ...filtro, pendentes: filtro.pendentes ? '' : 'true', status: '' })}
+        >
+          <Clock size={16} />
+          <span>
+            <b>{resumo._pendentes} {resumo._pendentes === 1 ? 'lead espera' : 'leads esperam'} retorno hoje.</b>{' '}
+            Mandaram a mensagem anterior há alguns dias e ninguém respondeu.
+          </span>
+          <span className="lembrete-acao">{filtro.pendentes ? 'Mostrar todos' : 'Ver quais'}</span>
+        </button>
+      )}
 
       {novo && (
         <form className="busca" onSubmit={salvarNovo}>

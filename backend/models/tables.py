@@ -1,3 +1,5 @@
+import json
+import random
 import secrets
 from datetime import datetime, timezone
 
@@ -5,6 +7,7 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 
 from database.connection import Base
+from models.modelos_mensagem import MODELOS_PADRAO, TONS
 
 
 def agora():
@@ -15,23 +18,12 @@ def novo_token():
     return secrets.token_urlsafe(9)
 
 
-MSG_PT = (
-    "Olá, tudo bem? Aqui é {meu_nome}{minha_empresa}. Encontrei a {empresa} no Google Maps "
-    "e vi que vocês ainda não têm um site. Hoje muita gente procura no Google antes de comprar, "
-    "e um site simples já traz mais clientes pelo WhatsApp.\n\n"
-    "Montei um questionário rápido (2 minutos) pra eu te mostrar uma prévia gratuita de como "
-    "ficaria o site de vocês: {link}"
-)
-MSG_EN = (
-    "Hi! This is {meu_nome}{minha_empresa}. I found {empresa} on Google Maps and noticed you "
-    "don't have a website yet. I build simple, fast websites that bring customers straight to "
-    "your WhatsApp. Answer this 2-minute form and I'll send you a free preview: {link}"
-)
-MSG_ES = (
-    "¡Hola! Soy {meu_nome}{minha_empresa}. Encontré {empresa} en Google Maps y vi que todavía "
-    "no tienen sitio web. Hago sitios simples que llevan clientes directo a su WhatsApp. "
-    "Responde este formulario de 2 minutos y te envío una vista previa gratis: {link}"
-)
+def modelos_padrao():
+    return json.dumps(MODELOS_PADRAO, ensure_ascii=False)
+
+
+def sortear_tom():
+    return random.choice(TONS)
 
 
 class UserTable(Base):
@@ -44,9 +36,7 @@ class UserTable(Base):
     empresa = Column(String(120), default="")
     whatsapp = Column(String(30), default="")
     token_publico = Column(String(32), unique=True, default=novo_token)
-    msg_pt = Column(Text, default=MSG_PT)
-    msg_en = Column(Text, default=MSG_EN)
-    msg_es = Column(Text, default=MSG_ES)
+    modelos = Column(Text, default=modelos_padrao)  # JSON: idioma -> tom -> passo -> texto
     criado_em = Column(DateTime, default=agora)
 
     leads = relationship("LeadTable", back_populates="usuario", cascade="all, delete-orphan")
@@ -76,6 +66,13 @@ class LeadTable(Base):
     maps_url = Column(String(400), default="")
     score = Column(Integer, default=0)
     status = Column(String(30), default="novo")
+    # Sequência de contato
+    tom = Column(String(20), default=sortear_tom)  # formal | descontraido (sorteado)
+    passo = Column(Integer, default=0)  # 0 nada enviado, 1 abertura, 2 retorno1, 3 retorno2
+    ultimo_envio_em = Column(DateTime, nullable=True)
+    respondeu = Column(Boolean, default=False)
+    respondeu_no_passo = Column(Integer, nullable=True)  # qual mensagem fez a pessoa responder
+    questionario_enviado = Column(Boolean, default=False)
     notas = Column(Text, default="")
     token = Column(String(32), unique=True, default=novo_token)
     criado_em = Column(DateTime, default=agora)

@@ -1,20 +1,7 @@
 // Modo demonstração: simula o backend no navegador, com dados de exemplo.
 // Ativado com `npm run build:demo` (VITE_DEMO=1).
 
-const MSG_PT =
-  'Olá, tudo bem? Aqui é {meu_nome}{minha_empresa}. Encontrei a {empresa} no Google Maps ' +
-  'e vi que vocês ainda não têm um site. Hoje muita gente procura no Google antes de comprar, ' +
-  'e um site simples já traz mais clientes pelo WhatsApp.\n\n' +
-  'Montei um questionário rápido (2 minutos) pra eu te mostrar uma prévia gratuita de como ' +
-  'ficaria o site de vocês: {link}'
-const MSG_EN =
-  "Hi! This is {meu_nome}{minha_empresa}. I found {empresa} on Google Maps and noticed you don't have a " +
-  'website yet. I build simple, fast websites that bring customers straight to your WhatsApp. ' +
-  "Answer this 2-minute form and I'll send you a free preview: {link}"
-const MSG_ES =
-  '¡Hola! Soy {meu_nome}{minha_empresa}. Encontré {empresa} en Google Maps y vi que todavía no tienen ' +
-  'sitio web. Hago sitios simples que llevan clientes directo a su WhatsApp. Responde este formulario ' +
-  'de 2 minutos y te envío una vista previa gratis: {link}'
+import MODELOS from './modelos.json'
 
 let seq = 100
 const tok = () => Math.random().toString(36).slice(2, 11)
@@ -22,26 +9,51 @@ const agora = () => new Date().toISOString().replace('Z', '')
 
 const usuario = {
   id: 1, nome: 'Guilherme', email: 'demo@prospecta.pb', empresa: 'GM Sites', whatsapp: '5583999990000',
-  token_publico: 'geral', msg_pt: MSG_PT, msg_en: MSG_EN, msg_es: MSG_ES,
+  token_publico: 'geral', modelos: structuredClone(MODELOS),
 }
+
+const diasAtras = (n) => new Date(Date.now() - n * 86400000).toISOString().replace('Z', '')
 
 function lead(d) {
   return {
     id: ++seq, fonte: 'google', regiao: 'pb', idioma: 'pt', cidade: 'João Pessoa - PB', website: '',
     so_rede_social: false, status: 'novo', notas: '', token: tok(), criado_em: agora(),
-    maps_url: 'https://www.google.com/maps', ...d,
+    maps_url: 'https://www.google.com/maps', tom: Math.random() < 0.5 ? 'formal' : 'descontraido',
+    passo: 0, ultimo_envio_em: null, respondeu: false, respondeu_no_passo: null, questionario_enviado: false, ...d,
   }
 }
 
 let leads = [
   lead({ nome: 'Barbearia Cabo Branco (exemplo)', categoria: 'Barbearia', endereco: 'Av. Cabo Branco, Cabo Branco', telefone: '(83) 99812-4410', whatsapp: '5583998124410', whatsapp_provavel: true, avaliacao: 4.9, num_avaliacoes: 214, score: 95 }),
-  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'contatado', notas: 'Dona pediu pra chamar depois das 18h' }),
-  lead({ nome: 'Pet Amigo Bancários (exemplo)', categoria: 'Pet shop', endereco: 'R. Bancário Sérgio Guerra, Bancários', telefone: '(83) 3222-4455', whatsapp: '558332224455', whatsapp_provavel: false, avaliacao: 4.2, num_avaliacoes: 40, score: 45 }),
-  lead({ nome: 'Oficina do Tonho (exemplo)', categoria: 'Oficina mecânica', endereco: 'Av. Dois de Fevereiro, Rangel', telefone: '(83) 98870-1122', whatsapp: '5583988701122', whatsapp_provavel: true, avaliacao: 4.7, num_avaliacoes: 131, score: 92, status: 'respondeu' }),
-  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta' }),
-  lead({ nome: 'Clínica Sorriso Bessa (exemplo)', categoria: 'Dentista', endereco: 'Av. Argemiro de Figueiredo, Bessa', telefone: '(83) 99301-5566', whatsapp: '5583993015566', whatsapp_provavel: true, avaliacao: 5.0, num_avaliacoes: 67, score: 91, status: 'fechado', notas: 'Landing page + agendamento. R$ 1.200' }),
+  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'contatado', notas: 'Dona pediu pra chamar depois das 18h', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(3) }),
+  lead({ nome: 'Pet Amigo Bancários (exemplo)', categoria: 'Pet shop', endereco: 'R. Bancário Sérgio Guerra, Bancários', telefone: '(83) 3222-4455', whatsapp: '558332224455', whatsapp_provavel: false, avaliacao: 4.2, num_avaliacoes: 40, score: 45, tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(5) }),
+  lead({ nome: 'Oficina do Tonho (exemplo)', categoria: 'Oficina mecânica', endereco: 'Av. Dois de Fevereiro, Rangel', telefone: '(83) 98870-1122', whatsapp: '5583988701122', whatsapp_provavel: true, avaliacao: 4.7, num_avaliacoes: 131, score: 92, status: 'questionario', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
+  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta', tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(6), respondeu: true, respondeu_no_passo: 2, questionario_enviado: true }),
+  lead({ nome: 'Clínica Sorriso Bessa (exemplo)', categoria: 'Dentista', endereco: 'Av. Argemiro de Figueiredo, Bessa', telefone: '(83) 99301-5566', whatsapp: '5583993015566', whatsapp_provavel: true, avaliacao: 5.0, num_avaliacoes: 67, score: 91, status: 'fechado', notas: 'Landing page + agendamento. R$ 1.200', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(12), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
   lead({ nome: 'Sunny Nails Studio (example)', categoria: 'Nail salon', endereco: 'Brickell, Miami, FL', cidade: 'Miami, USA', regiao: 'exterior', idioma: 'en', telefone: '+1 305-555-0142', whatsapp: '13055550142', whatsapp_provavel: true, avaliacao: 4.8, num_avaliacoes: 156, score: 88 }),
 ]
+
+// Histórico fictício de 3 semanas de abordagens, para a aba Resultados ter números
+const SEGMENTOS = ['Salão', 'Academia', 'Lanchonete', 'Ótica', 'Clínica', 'Pizzaria', 'Pet shop', 'Estúdio de tatuagem']
+const BAIRROS = ['Manaíra', 'Tambaú', 'Bessa', 'Mangabeira', 'Bancários', 'Torre', 'Altiplano', 'Cristo', 'Jaguaribe', 'Valentina']
+for (let i = 0; i < 70; i++) {
+  const tom = i % 2 ? 'formal' : 'descontraido'
+  const sorte = (i * 37) % 100
+  const chanceResp = tom === 'descontraido' ? 22 : 13
+  const respondeu = sorte < chanceResp
+  const passo = respondeu ? 1 + (i % 3 === 0 ? 1 : 0) : 1 + (i % 3)
+  const fezQuest = respondeu && sorte < chanceResp * 0.55
+  const fechou = fezQuest && i % 4 === 0
+  leads.push(lead({
+    nome: `${SEGMENTOS[i % SEGMENTOS.length]} ${BAIRROS[i % BAIRROS.length]} (exemplo)`,
+    categoria: SEGMENTOS[i % SEGMENTOS.length], endereco: `${BAIRROS[i % BAIRROS.length]}, João Pessoa`,
+    telefone: `(83) 9${8000 + i}-${1000 + i}`, whatsapp: `55839${8000 + i}${1000 + i}`, whatsapp_provavel: true,
+    avaliacao: +(4 + (i % 10) / 10).toFixed(1), num_avaliacoes: 10 + ((i * 13) % 150), score: 50 + ((i * 7) % 45),
+    tom, passo, respondeu, respondeu_no_passo: respondeu ? passo : null, questionario_enviado: respondeu && sorte % 3 !== 0,
+    ultimo_envio_em: diasAtras(1 + (i % 9)),
+    status: fechou ? 'fechado' : fezQuest ? 'questionario' : respondeu ? 'respondeu' : passo === 3 && i % 5 === 0 ? 'perdido' : 'contatado',
+  }))
+}
 
 let briefings = [
   {
@@ -88,6 +100,32 @@ function simularBusca(corpo) {
   }
 }
 
+function pendente(l) {
+  if (l.respondeu || ['fechado', 'perdido'].includes(l.status) || !l.ultimo_envio_em) return false
+  const dias = (Date.now() - new Date(l.ultimo_envio_em + 'Z').getTime()) / 86400000
+  return (l.passo === 1 && dias >= 2) || (l.passo === 2 && dias >= 4)
+}
+
+function funil(g) {
+  const conta = (f) => g.filter(f).length
+  return {
+    contatados: g.length,
+    responderam: conta((l) => l.respondeu),
+    respondeu_no_passo: { 1: conta((l) => l.respondeu_no_passo === 1), 2: conta((l) => l.respondeu_no_passo === 2), 3: conta((l) => l.respondeu_no_passo === 3) },
+    questionario_enviado: conta((l) => l.questionario_enviado),
+    questionario_respondido: conta((l) => ['questionario', 'proposta', 'fechado'].includes(l.status)),
+    proposta: conta((l) => ['proposta', 'fechado'].includes(l.status)),
+    fechados: conta((l) => l.status === 'fechado'),
+    parou_sem_resposta: { 1: conta((l) => !l.respondeu && l.passo === 1), 2: conta((l) => !l.respondeu && l.passo === 2), 3: conta((l) => !l.respondeu && l.passo === 3) },
+  }
+}
+
+function alterar(id, fn) {
+  const l = leads.find((x) => x.id === id)
+  fn(l)
+  return { ...l }
+}
+
 const espera = (ms) => new Promise((r) => setTimeout(r, ms))
 
 export async function mockApi(caminho, method, body) {
@@ -105,12 +143,22 @@ export async function mockApi(caminho, method, body) {
 
   if (rota === '/leads/buscar') return simularBusca(body)
   if (rota === '/leads/resumo') {
-    return leads.reduce((acc, l) => ({ ...acc, [l.status]: (acc[l.status] || 0) + 1 }), {})
+    const r = leads.reduce((acc, l) => ({ ...acc, [l.status]: (acc[l.status] || 0) + 1 }), {})
+    return { ...r, _pendentes: leads.filter(pendente).length }
+  }
+  if (rota === '/leads/metricas') {
+    const contatados = leads.filter((l) => l.passo > 0)
+    return {
+      geral: funil(contatados),
+      formal: funil(contatados.filter((l) => l.tom === 'formal')),
+      descontraido: funil(contatados.filter((l) => l.tom === 'descontraido')),
+    }
   }
   if (rota === '/leads' && method === 'GET') {
     const q = (params.get('q') || '').toLowerCase()
     return leads
       .filter((l) => !params.get('status') || l.status === params.get('status'))
+      .filter((l) => !params.get('pendentes') || pendente(l))
       .filter((l) => !params.get('regiao') || l.regiao === params.get('regiao'))
       .filter((l) => !q || `${l.nome} ${l.categoria} ${l.endereco}`.toLowerCase().includes(q))
       .sort((a, b) => b.score - a.score)
@@ -120,6 +168,29 @@ export async function mockApi(caminho, method, body) {
     const novo = lead({ ...body, fonte: 'manual', whatsapp: wa ? `55${wa}` : '', whatsapp_provavel: wa.length === 11, score: 50 })
     leads = [novo, ...leads]
     return novo
+  }
+  if (partes[0] === 'leads' && partes[2] === 'envio') {
+    return alterar(Number(partes[1]), (l) => {
+      if (body.passo === 'questionario') {
+        l.questionario_enviado = true
+        if (!l.respondeu) Object.assign(l, { respondeu: true, respondeu_no_passo: l.passo || 1 })
+      } else {
+        l.passo = Math.max(l.passo, { abertura: 1, retorno1: 2, retorno2: 3 }[body.passo])
+        if (l.status === 'novo') l.status = 'contatado'
+      }
+      l.ultimo_envio_em = agora()
+    })
+  }
+  if (partes[0] === 'leads' && partes[2] === 'resposta') {
+    return alterar(Number(partes[1]), (l) => {
+      if (l.respondeu) {
+        Object.assign(l, { respondeu: false, respondeu_no_passo: null })
+        if (l.status === 'respondeu') l.status = 'contatado'
+      } else {
+        Object.assign(l, { respondeu: true, respondeu_no_passo: l.passo || 1 })
+        if (['novo', 'contatado'].includes(l.status)) l.status = 'respondeu'
+      }
+    })
   }
   if (partes[0] === 'leads') {
     const id = Number(partes[1])
@@ -147,7 +218,10 @@ export async function mockApi(caminho, method, body) {
       contato_whatsapp: (body.contato_whatsapp || '').replace(/\D/g, ''), respostas: body.respostas, lido: false, criado_em: agora(),
     }
     briefings = [b, ...briefings]
-    if (l && ['novo', 'contatado'].includes(l.status)) l.status = 'respondeu'
+    if (l) {
+      if (!l.respondeu) Object.assign(l, { respondeu: true, respondeu_no_passo: l.passo || 1 })
+      if (['novo', 'contatado', 'respondeu'].includes(l.status)) l.status = 'questionario'
+    }
     return { token: b.token, whatsapp_vendedor: usuario.whatsapp }
   }
   if (partes[0] === 'publico' && partes[1] === 'lp') {
