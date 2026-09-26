@@ -1,0 +1,89 @@
+import json
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from database.connection import get_db
+from models.tables import BriefingTable, LeadTable, UserTable
+from schemas.schemas import BriefingIn, BriefingOut
+from utils.jwt import usuario_atual
+from utils.telefone import so_digitos
+
+router = APIRouter()      # rotas privadas (/api/briefings)
+publico = APIRouter()     # rotas abertas para o cliente (/api/publico)
+
+
+def _para_out(b: BriefingTable) -> BriefingOut:
+    return BriefingOut(
+        id=b.id, lead_id=b.lead_id, token=b.token, empresa=b.empresa or "", contato_nome=b.contato_nome or "",
+        contato_whatsapp=b.contato_whatsapp or "", respostas=json.loads(b.respostas or "{}"), lido=b.lido,
+        criado_em=b.criado_em,
+    )
+
+
+@router.get("", response_model=list[BriefingOut])
+def listar(user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    itens = db.query(BriefingTable).filter_by(user_id=user.id).order_by(BriefingTable.criado_em.desc()).all()
+    return [_para_out(b) for b in itens]
+
+
+@router.post("/{briefing_id}/lido")
+def marcar_lido(briefing_id: int, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    b = db.query(BriefingTable).filter_by(id=briefing_id, user_id=user.id).first()
+    if b is None:
+        raise HTTPException(status_code=404, detail="Não encontrado")
+    b.lido = True
+    db.commit()
+    return {"ok": True}
+
+
+def _resolver_token(token: str, db: Session) -> tuple[UserTable, LeadTable | None]:
+    lead = db.query(LeadTable).filter_by(token=token).first()
+    if lead:
+        return lead.usuario, lead
+    user = db.query(UserTable).filter_by(token_publico=token).first()
+    if user:
+        return user, None
+    raise HTTPException(status_code=404, detail="Link inválido")
+
+
+@publico.get("/q/{token}")
+def dados_questionario(token: str, db: Session = Depends(get_db)):
+    user, lead = _resolver_token(token, db)
+    return {
+        "vendedor": user.nome,
+        "empresa_vendedor": user.empresa,
+        "empresa_cliente": lead.nome if lead else "",
+        "idioma": lead.idioma if lead else "pt",
+    }
+
+
+@publico.post("/q/{token}")
+def responder_questionario(token: str, dados: BriefingIn, db: Session = Depends(get_db)):
+    user, lead = _resolver_token(token, db)
+    b = BriefingTable(
+        user_id=user.id,
+        lead_id=lead.id if lead else None,
+        empresa=dados.empresa,
+        contato_nome=dados.contato_nome,
+        contato_whatsapp=so_digitos(dados.contato_whatsapp),
+        respostas=json.dumps(dados.respostas, ensure_ascii=False),
+    )
+    db.add(b)
+    if lead and lead.status in ("novo", "contatado"):
+        lead.status = "respondeu"
+    db.commit()
+    db.refresh(b)
+    return {"token": b.token, "whatsapp_vendedor": user.whatsapp or ""}
+
+
+@publico.get("/lp/{token}")
+def dados_landing(token: str, db: Session = Depends(get_db)):
+    b = db.query(BriefingTable).filter_by(token=token).first()
+    if b is None:
+        raise HTTPException(status_code=404, detail="Prévia não encontrada")
+    user = db.get(UserTable, b.user_id)
+    return {
+        "briefing": _para_out(b),
+        "vendedor": {"nome": user.nome, "empresa": user.empresa, "whatsapp": user.whatsapp},
+    }

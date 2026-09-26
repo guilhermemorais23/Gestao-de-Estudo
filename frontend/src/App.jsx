@@ -1,25 +1,40 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-
-// Puxando os arquivos direto da pasta pages
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { getToken } from './api'
+import Layout from './components/Layout'
 import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
+import Prospectar from './pages/Prospectar'
+import Leads from './pages/Leads'
+import Respostas from './pages/Respostas'
+import Config from './pages/Config'
+import Questionario from './pages/Questionario'
+import LandingPreview from './pages/LandingPreview'
 
-function App() {
+function Privado({ children }) {
+  return getToken() ? children : <Navigate to="/login" replace />
+}
+
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Se entrar no link seco, joga pro login */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        
-        {/* Rota da tela de Login nova e centralizada */}
         <Route path="/login" element={<Login />} />
-        
-        {/* Rota do seu Dashboard de Estudos que recuperamos */}
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Páginas públicas que o cliente abre */}
+        <Route path="/q/:token" element={<Questionario />} />
+        <Route path="/lp/:token" element={<LandingPreview />} />
+
+        {/* Painel (precisa de login) */}
+        <Route element={<Privado><Layout /></Privado>}>
+          <Route path="/" element={<Navigate to="/prospectar" replace />} />
+          <Route path="/prospectar" element={<Prospectar regiao="pb" />} />
+          <Route path="/exterior" element={<Prospectar regiao="exterior" />} />
+          <Route path="/leads" element={<Leads />} />
+          <Route path="/respostas" element={<Respostas />} />
+          <Route path="/config" element={<Config />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
 }
-
-export default App
