@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
+import { IconeWhatsapp } from '../components/Icones'
 
 // Transforma "preto e dourado" em cores de verdade para a prévia
 const CORES = {
@@ -60,9 +61,9 @@ export default function LandingPreview() {
   return (
     <div className="lp" style={{ '--lp-principal': principal, '--lp-destaque': destaque }}>
       <div className="lp-faixa">
-        {DEMO && <Link to="/respostas">← Voltar ao painel</Link>}
+        {DEMO && <Link to="/respostas">Voltar ao painel</Link>}
         {t.faixa} <b>{vendedor.empresa || vendedor.nome}</b>
-        {vendedor.whatsapp && <a href={zapVendedor} target="_blank" rel="noreferrer">{t.gostou} →</a>}
+        {vendedor.whatsapp && <a href={zapVendedor} target="_blank" rel="noreferrer">{t.gostou}</a>}
       </div>
 
       <header className="lp-hero">
@@ -70,7 +71,7 @@ export default function LandingPreview() {
         <h1>{briefing.empresa}</h1>
         <p className="lp-seg">{r.segmento}</p>
         {r.diferencial && <p className="lp-dif">{r.diferencial}</p>}
-        <a className="lp-cta" href={zapCliente} target="_blank" rel="noreferrer">{t.falar}</a>
+        <a className="lp-cta" href={zapCliente} target="_blank" rel="noreferrer"><IconeWhatsapp size={18} /> {t.falar}</a>
       </header>
 
       {servicos.length > 0 && (
@@ -86,11 +87,14 @@ export default function LandingPreview() {
         <section className="lp-sec claro">
           <h2>{t.depo}</h2>
           <div className="lp-grid">
-            {['⭐⭐⭐⭐⭐ “Atendimento excelente!”', '⭐⭐⭐⭐⭐ “Recomendo demais.”', '⭐⭐⭐⭐⭐ “Voltarei com certeza.”'].map((d) => (
-              <div key={d} className="lp-card">{d}</div>
+            {['Atendimento excelente, saí muito satisfeito.', 'Recomendo demais, preço justo.', 'Voltarei com certeza.'].map((d) => (
+              <figure key={d} className="lp-card lp-depo">
+                <span className="lp-estrelas" aria-label="5 de 5 estrelas">★★★★★</span>
+                <blockquote>{d}</blockquote>
+              </figure>
             ))}
           </div>
-          <p className="pequeno muted">Depoimentos ilustrativos — no site final entram avaliações reais do Google.</p>
+          <p className="pequeno muted">Depoimentos ilustrativos. No site final entram as avaliações reais do Google.</p>
         </section>
       )}
 
@@ -111,13 +115,13 @@ export default function LandingPreview() {
       )}
 
       <footer className="lp-rodape">
-        <a className="lp-cta" href={zapCliente} target="_blank" rel="noreferrer">{t.falar}</a>
+        <a className="lp-cta" href={zapCliente} target="_blank" rel="noreferrer"><IconeWhatsapp size={18} /> {t.falar}</a>
         {instagram && (
           <p><a href={`https://instagram.com/${instagram}`} target="_blank" rel="noreferrer">@{instagram}</a></p>
         )}
         <p className="pequeno">© {new Date().getFullYear()} {briefing.empresa}</p>
       </footer>
-      <a className="lp-flutuante" href={zapCliente} target="_blank" rel="noreferrer" aria-label="WhatsApp">💬</a>
+      <a className="lp-flutuante" href={zapCliente} target="_blank" rel="noreferrer" aria-label="WhatsApp"><IconeWhatsapp size={26} /></a>
     </div>
   )
 }

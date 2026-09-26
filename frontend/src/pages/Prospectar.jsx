@@ -51,14 +51,16 @@ export default function Prospectar({ regiao }) {
 
   return (
     <section>
-      <h1>{exterior ? '🌎 Outras regiões e exterior' : '📍 Prospectar na Paraíba'}</h1>
-      <p className="muted">
+      <header className="cabecalho">
+        <h1>{exterior ? 'Outras regiões' : 'Prospectar na Paraíba'}</h1>
+        <p>
         {exterior
-          ? 'Busque em qualquer cidade do Brasil ou de outro país. A mensagem vai no idioma escolhido.'
-          : 'Busca empresas no Google Maps e mostra só as que não têm site (ou têm só Instagram/Facebook).'}
-      </p>
+          ? 'Busque em qualquer cidade do Brasil ou de outro país. A mensagem de abordagem sai no idioma escolhido.'
+          : 'Busque empresas no Google Maps. Aparecem só as que não têm site ou têm apenas Instagram e Facebook.'}
+        </p>
+      </header>
 
-      <form className="card filtros" onSubmit={buscar}>
+      <form className="busca" onSubmit={buscar}>
         <label className="cresce">
           O que procurar
           <input value={form.termo} onChange={set('termo')} placeholder="ex: barbearia" required minLength={2} />
@@ -101,22 +103,23 @@ export default function Prospectar({ regiao }) {
         )}
         <label className="check">
           <input type="checkbox" checked={form.incluir_so_rede_social} onChange={set('incluir_so_rede_social')} />
-          Incluir quem só tem Instagram/Facebook
+          Incluir quem só tem rede social
         </label>
         <button className="btn" disabled={buscando}>{buscando ? 'Buscando…' : 'Buscar'}</button>
       </form>
 
-      <div className="chips">
+      <div className="sugestoes">
+        <span className="muted">Sugestões:</span>
         {(exterior ? SUGESTOES_EXT : SUGESTOES_PT).map((s) => (
-          <button key={s} className="chip" onClick={() => setForm({ ...form, termo: s })}>{s}</button>
+          <button key={s} type="button" className={form.termo === s ? 'chip ativo' : 'chip'} onClick={() => setForm({ ...form, termo: s })}>{s}</button>
         ))}
       </div>
 
       {erro && <p className="erro">{erro}</p>}
       {resultado && (
         <p className="resumo">
-          Encontradas <b>{resultado.total_encontrado}</b> empresas · <b>{resultado.sem_site}</b> sem site ·{' '}
-          <b>{resultado.novos}</b> novas salvas em "Meus leads".
+          <b>{resultado.sem_site}</b> de {resultado.total_encontrado} empresas não têm site.{' '}
+          {resultado.novos > 0 ? `${resultado.novos} foram salvas em Leads.` : 'Todas já estavam em Leads.'}
         </p>
       )}
       {resultado && <TabelaLeads leads={leads} setLeads={setLeads} mostrarGestao={false} />}

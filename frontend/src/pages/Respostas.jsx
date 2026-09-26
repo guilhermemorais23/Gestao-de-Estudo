@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
+import { ChevronDown } from 'lucide-react'
 import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 import { PERGUNTAS } from '../perguntas'
 
@@ -22,25 +23,27 @@ export default function Respostas() {
 
   return (
     <section>
-      <h1>📝 Respostas dos clientes</h1>
-      <p className="muted">
-        Cada resposta gera uma prévia de landing page automática — mande o link para o cliente e feche a venda.
-      </p>
-      {!lista.length && <p className="muted">Ninguém respondeu ainda. Envie o link do questionário pelo WhatsApp.</p>}
+      <header className="cabecalho">
+        <h1>Respostas</h1>
+        <p>Cada questionário respondido vira uma prévia de site. Mande o link para o cliente e combine a proposta.</p>
+      </header>
+      {!lista.length && <p className="vazio">Ninguém respondeu ainda. Envie o link do questionário pelo WhatsApp.</p>}
       {lista.map((b) => {
         const lp = urlPublica(`/lp/${b.token}`)
         const msg = `Oi ${b.contato_nome}! Aqui é ${usuario.nome}. Fiz uma prévia do site da ${b.empresa}, dá uma olhada: ${lp}`
         return (
-          <div key={b.id} className={`card resposta ${b.lido ? '' : 'nao-lida'}`}>
-            <div className="titulo-linha" onClick={() => abrir(b)} role="button">
-              <div>
-                <strong>{b.empresa}</strong> — {b.contato_nome}
-                <div className="muted pequeno">
-                  {new Date(b.criado_em + 'Z').toLocaleString('pt-BR')} · {b.respostas.objetivo} · {b.respostas.investimento}
-                </div>
-              </div>
-              <span>{aberto === b.id ? '▲' : '▼'}</span>
-            </div>
+          <div key={b.id} className={`resposta ${b.lido ? '' : 'nao-lida'} ${aberto === b.id ? 'aberta' : ''}`}>
+            <button className="resposta-topo" onClick={() => abrir(b)} aria-expanded={aberto === b.id}>
+              <span>
+                <strong>{b.empresa}</strong>
+                {!b.lido && <span className="novo">Nova</span>}
+                <span className="sub">
+                  {b.contato_nome}, {new Date(b.criado_em + 'Z').toLocaleDateString('pt-BR')}. Objetivo: {b.respostas.objetivo}
+                </span>
+              </span>
+              <span className="resposta-valor">{b.respostas.investimento}</span>
+              <ChevronDown size={18} className="seta" />
+            </button>
             {aberto === b.id && (
               <>
                 <dl className="respostas">
@@ -58,7 +61,7 @@ export default function Respostas() {
                     <a className="btn" href={lp} target="_blank" rel="noreferrer">Ver prévia da landing page</a>
                   )}
                   {b.contato_whatsapp && (
-                    <a className="btn verde" href={linkWhatsapp(b.contato_whatsapp, msg)} target="_blank" rel="noreferrer">
+                    <a className="btn btn-secundario" href={linkWhatsapp(b.contato_whatsapp, msg)} target="_blank" rel="noreferrer">
                       Mandar prévia no WhatsApp
                     </a>
                   )}

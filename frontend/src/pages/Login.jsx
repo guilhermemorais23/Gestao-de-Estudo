@@ -33,9 +33,12 @@ export default function Login() {
   return (
     <div className="tela-login">
       <form className="card login" onSubmit={enviar}>
-        <h1>🔎 Prospecta PB</h1>
+        <div className="marca grande">
+          <span className="marca-simbolo" aria-hidden="true" />
+          Prospecta
+        </div>
         <p className="muted">Encontre empresas sem site e transforme em clientes.</p>
-        {DEMO && <p className="aviso-demo">Demonstração com dados de exemplo. É só clicar em Entrar.</p>}
+        {DEMO && <p className="faixa-info caixa">Demonstração com dados de exemplo. É só clicar em Entrar.</p>}
         {modo === 'registro' && (
           <label>Nome<input value={form.nome} onChange={set('nome')} required minLength={2} /></label>
         )}
@@ -43,9 +46,9 @@ export default function Login() {
         <label>Senha<input type="password" value={form.senha} onChange={set('senha')} required minLength={6} /></label>
         {erro && <p className="erro">{erro}</p>}
         <button className="btn" disabled={carregando}>
-          {carregando ? 'Aguarde…' : modo === 'login' ? 'Entrar' : 'Criar conta'}
+          {carregando ? 'Entrando' : modo === 'login' ? 'Entrar' : 'Criar conta'}
         </button>
-        <button type="button" className="btn-link" onClick={() => setModo(modo === 'login' ? 'registro' : 'login')}>
+        <button type="button" className="btn-texto" onClick={() => setModo(modo === 'login' ? 'registro' : 'login')}>
           {modo === 'login' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta'}
         </button>
       </form>

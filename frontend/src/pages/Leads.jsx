@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { Plus, Search } from 'lucide-react'
 import TabelaLeads, { STATUS } from '../components/TabelaLeads'
 
 export default function Leads() {
@@ -30,12 +31,15 @@ export default function Leads() {
 
   return (
     <section>
-      <div className="titulo-linha">
-        <h1>📋 Meus leads</h1>
-        <button className="btn claro" onClick={() => setNovo({ nome: '', telefone: '', cidade: '', categoria: '' })}>
-          + Adicionar manualmente
+      <header className="cabecalho linha">
+        <div>
+          <h1>Leads</h1>
+          <p>Acompanhe cada empresa da primeira mensagem até o fechamento.</p>
+        </div>
+        <button className="btn btn-secundario" onClick={() => setNovo({ nome: '', telefone: '', cidade: '', categoria: '' })}>
+          <Plus size={16} /> Adicionar lead
         </button>
-      </div>
+      </header>
 
       <div className="funil">
         {Object.entries(STATUS).map(([v, t]) => (
@@ -44,25 +48,28 @@ export default function Leads() {
             className={filtro.status === v ? 'etapa ativa' : 'etapa'}
             onClick={() => setFiltro({ ...filtro, status: filtro.status === v ? '' : v })}
           >
-            <b>{resumo[v] || 0}</b>
             <span>{t}</span>
+            <b>{resumo[v] || 0}</b>
           </button>
         ))}
       </div>
 
       {novo && (
-        <form className="card filtros" onSubmit={salvarNovo}>
+        <form className="busca" onSubmit={salvarNovo}>
           <label className="cresce">Nome<input required value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} /></label>
           <label>Telefone<input value={novo.telefone} onChange={(e) => setNovo({ ...novo, telefone: e.target.value })} /></label>
           <label>Cidade<input value={novo.cidade} onChange={(e) => setNovo({ ...novo, cidade: e.target.value })} /></label>
           <label>Categoria<input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></label>
           <button className="btn">Salvar</button>
-          <button type="button" className="btn-link" onClick={() => setNovo(null)}>cancelar</button>
+          <button type="button" className="btn-texto" onClick={() => setNovo(null)}>Cancelar</button>
         </form>
       )}
 
       <div className="filtros linha">
-        <input className="cresce" placeholder="Buscar por nome, categoria, bairro…" value={filtro.q} onChange={set('q')} />
+        <div className="campo-busca cresce">
+          <Search size={16} />
+          <input aria-label="Buscar" placeholder="Buscar por nome, categoria ou bairro" value={filtro.q} onChange={set('q')} />
+        </div>
         <select value={filtro.regiao} onChange={set('regiao')}>
           <option value="">Todas as regiões</option>
           <option value="pb">Paraíba</option>

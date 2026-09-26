@@ -63,19 +63,19 @@ export default function Questionario() {
   if (final) {
     return (
       <div className="publico">
-        {DEMO && <Link className="voltar-demo" to="/respostas">← Ver no painel</Link>}
-        <div className="card centro">
+        {DEMO && <Link className="voltar-demo" to="/respostas">Ver no painel</Link>}
+        <div className="questionario centro">
           <h1>{t.obrigado}</h1>
           <div className="acoes centro">
             <Link className="btn" to={`/lp/${final.token}`}>{t.verPrevia}</Link>
             {final.whatsapp_vendedor && (
-              <a className="btn verde" href={final.link} target="_blank" rel="noreferrer">{t.falar}</a>
+              <a className="btn btn-secundario" href={final.link} target="_blank" rel="noreferrer">{t.falar}</a>
             )}
           </div>
           {final.whatsapp_vendedor && (
             <>
               <p className="muted">{t.qrTexto}</p>
-              <QRCodeSVG value={final.link} size={180} marginSize={2} />
+              <QRCodeSVG value={final.link} size={160} marginSize={1} />
             </>
           )}
         </div>
@@ -85,8 +85,8 @@ export default function Questionario() {
 
   return (
     <div className="publico">
-      {DEMO && <Link className="voltar-demo" to="/leads">← Voltar ao painel</Link>}
-      <form className="card questionario" onSubmit={enviar}>
+      {DEMO && <Link className="voltar-demo" to="/leads">Voltar ao painel</Link>}
+      <form className="questionario" onSubmit={enviar}>
         <h1>{t.titulo}</h1>
         <p className="muted">{t.sub}{info.empresa_vendedor ? ` — ${info.empresa_vendedor}` : ''}</p>
         {PERGUNTAS.map((p) => (

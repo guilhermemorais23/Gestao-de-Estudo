@@ -1,21 +1,23 @@
 import { Fragment, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
+import { ExternalLink, Trash2 } from 'lucide-react'
 import { api } from '../api'
 import WhatsappModal from './WhatsappModal'
+import { IconeWhatsapp } from './Icones'
 
 export const STATUS = {
   novo: 'Novo',
   contatado: 'Contatado',
   respondeu: 'Respondeu',
   proposta: 'Proposta enviada',
-  fechado: 'Fechado ✅',
+  fechado: 'Fechado',
   perdido: 'Perdido',
 }
 
-function corScore(score) {
-  if (score >= 70) return 'quente'
-  if (score >= 45) return 'morno'
-  return 'frio'
+function temperatura(score) {
+  if (score >= 70) return { classe: 'quente', texto: 'Quente' }
+  if (score >= 45) return { classe: 'morno', texto: 'Morno' }
+  return { classe: 'frio', texto: 'Frio' }
 }
 
 export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
@@ -37,7 +39,7 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
     setLeads((lista) => lista.filter((l) => l.id !== lead.id))
   }
 
-  if (!leads.length) return <p className="muted">Nenhum lead por aqui.</p>
+  if (!leads.length) return <p className="vazio">Nenhum lead encontrado com esses filtros.</p>
 
   return (
     <>
@@ -45,82 +47,96 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
         <table className="tabela">
           <thead>
             <tr>
-              <th title="Quanto maior, mais chance de fechar">Score</th>
               <th>Empresa</th>
+              <th title="De 0 a 100. Considera falta de site, WhatsApp e movimento no Google.">Potencial</th>
               <th>Contato</th>
-              <th>Google</th>
-              {mostrarGestao && <th>Status</th>}
-              {mostrarGestao && <th>Notas</th>}
-              <th></th>
+              <th>No Google</th>
+              {mostrarGestao && <th>Etapa</th>}
+              {mostrarGestao && <th>Anotações</th>}
+              <th><span className="sr">Ações</span></th>
             </tr>
           </thead>
           <tbody>
-            {leads.map((l) => (
-              <tr key={l.id}>
-                <td><span className={`score ${corScore(l.score)}`}>{l.score}</span></td>
-                <td>
-                  <strong>{l.nome}</strong>
-                  <div className="muted pequeno">{l.categoria} · {l.endereco || l.cidade}</div>
-                  <div className="etiquetas">
-                    {l.so_rede_social ? (
-                      <a className="etiqueta rosa" href={l.website} target="_blank" rel="noreferrer">só rede social</a>
+            {leads.map((l) => {
+              const temp = temperatura(l.score)
+              return (
+                <tr key={l.id}>
+                  <td className="col-empresa">
+                    <strong>{l.nome}</strong>
+                    <span className="sub">{[l.categoria, l.endereco || l.cidade].filter(Boolean).join(', ')}</span>
+                    <span className="sub">
+                      {l.so_rede_social ? (
+                        <>Só tem <a href={l.website} target="_blank" rel="noreferrer">rede social</a></>
+                      ) : (
+                        'Sem site'
+                      )}
+                      {l.regiao === 'exterior' && `, mensagem em ${{ pt: 'português', en: 'inglês', es: 'espanhol' }[l.idioma]}`}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`potencial ${temp.classe}`}>
+                      <b>{l.score}</b> {temp.texto}
+                    </span>
+                  </td>
+                  <td className="nowrap">
+                    {l.telefone || <span className="muted">Sem telefone</span>}
+                    <span className="sub">{l.whatsapp_provavel ? 'Celular, deve ter WhatsApp' : l.telefone ? 'Parece fixo' : ''}</span>
+                  </td>
+                  <td className="nowrap">
+                    {l.avaliacao ? (
+                      <>
+                        {String(l.avaliacao).replace('.', ',')} <span className="muted">({l.num_avaliacoes} avaliações)</span>
+                      </>
                     ) : (
-                      <span className="etiqueta">sem site</span>
+                      <span className="muted">Sem avaliações</span>
                     )}
-                    {l.fonte !== 'google' && <span className="etiqueta cinza">{l.fonte}</span>}
-                    {l.regiao === 'exterior' && <span className="etiqueta azul">{l.idioma.toUpperCase()}</span>}
-                  </div>
-                </td>
-                <td className="nowrap">
-                  {l.telefone || <span className="muted">sem telefone</span>}
-                  {l.whatsapp_provavel && <div className="pequeno verde-txt">provável WhatsApp</div>}
-                </td>
-                <td className="nowrap">
-                  {l.avaliacao ? `⭐ ${l.avaliacao} (${l.num_avaliacoes})` : '—'}
-                  {l.maps_url && (
-                    <div><a className="pequeno" href={l.maps_url} target="_blank" rel="noreferrer">ver no Maps</a></div>
+                    {l.maps_url && (
+                      <a className="sub link-icone" href={l.maps_url} target="_blank" rel="noreferrer">
+                        Abrir no Maps <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </td>
+                  {mostrarGestao && (
+                    <td>
+                      <select aria-label="Etapa" value={l.status} onChange={(e) => mudar(l, { status: e.target.value })}>
+                        {Object.entries(STATUS).map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+                      </select>
+                    </td>
                   )}
-                </td>
-                {mostrarGestao && (
-                  <td>
-                    <select value={l.status} onChange={(e) => mudar(l, { status: e.target.value })}>
-                      {Object.entries(STATUS).map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-                    </select>
+                  {mostrarGestao && (
+                    <td>
+                      <textarea
+                        aria-label="Anotações"
+                        className="notas"
+                        defaultValue={l.notas}
+                        placeholder="Anotar"
+                        onBlur={(e) => e.target.value !== l.notas && mudar(l, { notas: e.target.value })}
+                      />
+                    </td>
+                  )}
+                  <td className="col-acoes">
+                    <button className="btn btn-pequeno" onClick={() => setAberto(l)}>
+                      <IconeWhatsapp size={15} /> Abordar
+                    </button>
+                    {mostrarGestao && (confirmando === l.id ? (
+                      <Fragment>
+                        <button className="btn-texto perigo" onClick={() => excluir(l)}>Excluir</button>
+                        <button className="btn-texto" onClick={() => setConfirmando(null)}>Manter</button>
+                      </Fragment>
+                    ) : (
+                      <button className="icone-btn" title="Excluir lead" aria-label="Excluir lead" onClick={() => setConfirmando(l.id)}>
+                        <Trash2 size={15} strokeWidth={1.75} />
+                      </button>
+                    ))}
                   </td>
-                )}
-                {mostrarGestao && (
-                  <td>
-                    <textarea
-                      className="notas"
-                      defaultValue={l.notas}
-                      placeholder="Anotações…"
-                      onBlur={(e) => e.target.value !== l.notas && mudar(l, { notas: e.target.value })}
-                    />
-                  </td>
-                )}
-                <td className="nowrap">
-                  <button className="btn verde pequeno-btn" onClick={() => setAberto(l)}>WhatsApp</button>
-                  {mostrarGestao && (confirmando === l.id ? (
-                    <Fragment>
-                      <button className="btn-link perigo" onClick={() => excluir(l)}>confirmar</button>
-                      <button className="btn-link" onClick={() => setConfirmando(null)}>não</button>
-                    </Fragment>
-                  ) : (
-                    <button className="btn-link perigo" onClick={() => setConfirmando(l.id)}>excluir</button>
-                  ))}
-                </td>
-              </tr>
-            ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
       {aberto && (
-        <WhatsappModal
-          usuario={usuario}
-          lead={aberto}
-          onFechar={() => setAberto(null)}
-          onAtualizado={substituir}
-        />
+        <WhatsappModal usuario={usuario} lead={aberto} onFechar={() => setAberto(null)} onAtualizado={substituir} />
       )}
     </>
   )

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
+import { X } from 'lucide-react'
+import { IconeWhatsapp } from './Icones'
 import { DEMO, api, linkWhatsapp, urlPublica } from '../api'
 
 export function montarMensagem(usuario, lead) {
@@ -42,45 +44,48 @@ export default function WhatsappModal({ usuario, lead, onFechar, onAtualizado })
     <div className="fundo-modal" onClick={onFechar}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-topo">
-          <h2>Mensagem para {lead.nome}</h2>
-          <button className="btn-link" onClick={onFechar}>✕</button>
+          <div>
+            <h2>Abordar {lead.nome}</h2>
+            <p className="muted">Revise a mensagem e abra a conversa no WhatsApp.</p>
+          </div>
+          <button className="icone-btn" onClick={onFechar} aria-label="Fechar"><X size={18} /></button>
         </div>
 
         <div className="modal-grid">
           <div>
             <label>
-              WhatsApp do cliente (com DDI, ex: 5583999998888)
+              WhatsApp da empresa, com 55 e DDD
               <input value={numero} onChange={(e) => setNumero(e.target.value.replace(/\D/g, ''))} />
             </label>
             {!lead.whatsapp_provavel && numero && (
-              <p className="alerta">Parece telefone fixo — pode não ter WhatsApp. Confira no Google Maps/Instagram.</p>
+              <p className="alerta">Esse número parece fixo e pode não ter WhatsApp. Confira no Maps ou no Instagram da empresa.</p>
             )}
             <label>
               Mensagem
               <textarea rows={9} value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
             </label>
             <div className="acoes">
-              <a className="btn verde" href={link} target="_blank" rel="noreferrer" onClick={marcarContatado}>
-                Abrir no WhatsApp
+              <a className="btn" href={link} target="_blank" rel="noreferrer" onClick={marcarContatado}>
+                <IconeWhatsapp size={16} /> Abrir no WhatsApp
               </a>
-              <button className="btn claro" onClick={() => copiar(mensagem, 'msg')}>
+              <button className="btn btn-secundario" onClick={() => copiar(mensagem, 'msg')}>
                 {copiado === 'msg' ? 'Copiado!' : 'Copiar mensagem'}
               </button>
-              <button className="btn claro" onClick={() => copiar(urlPublica(`/q/${lead.token}`), 'q')}>
+              <button className="btn btn-secundario" onClick={() => copiar(urlPublica(`/q/${lead.token}`), 'q')}>
                 {copiado === 'q' ? 'Copiado!' : 'Copiar link do questionário'}
               </button>
               {DEMO && (
-                <Link className="btn claro" to={`/q/${lead.token}`}>Ver o questionário como o cliente →</Link>
+                <Link className="btn-texto" to={`/q/${lead.token}`}>Ver o questionário como o cliente</Link>
               )}
             </div>
           </div>
           <div className="qr">
-            <QRCodeSVG value={link} size={190} marginSize={2} />
-            <p className="muted">Aponte a câmera do seu celular para abrir a conversa já com a mensagem pronta.</p>
+            <QRCodeSVG value={link} size={168} marginSize={1} fgColor="#18211E" />
+            <p className="muted">Aponte a câmera do celular para abrir a conversa com a mensagem pronta.</p>
           </div>
         </div>
-        <p className="muted pequeno">
-          Dica: envie manualmente e aos poucos (ex.: 20–30 por dia). Disparo em massa faz o WhatsApp banir o número.
+        <p className="nota-rodape">
+          Envie aos poucos, algo como 20 a 30 por dia. Disparo em massa faz o WhatsApp bloquear o número.
         </p>
       </div>
     </div>
