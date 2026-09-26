@@ -58,7 +58,7 @@ export default function Questionario() {
         },
       })
       const saudacao = { pt: 'Olá! Acabei de responder o questionário do site.', en: 'Hi! I just filled in the website form.', es: '¡Hola! Acabo de responder el formulario del sitio.' }[idioma]
-      const msg = `${saudacao}\n\n${resumoTexto(respostas, idioma)}\n\n${urlPublica(`/lp/${r.token}`)}`
+      const msg = `${saudacao}\n\n${resumoTexto(respostas, idioma)}\n\n${urlPublica(`/p/${r.token}`)}`
       setFinal({ ...r, link: linkWhatsapp(r.whatsapp_vendedor, msg) })
     } catch (err) {
       setErro(err.message)
@@ -108,7 +108,7 @@ export default function Questionario() {
           <h1>{t.obrigado}</h1>
           <p className="muted">{{ pt: 'Sua prévia já está pronta. Dá uma olhada e me chama no WhatsApp para ajustarmos.', en: 'Your preview is ready. Take a look and message me on WhatsApp.', es: 'Tu vista previa está lista. Mírala y escríbeme por WhatsApp.' }[idioma]}</p>
           <div className="acoes centro">
-            <Link className="btn grande" to={`/lp/${final.token}`}>{t.verPrevia}</Link>
+            <Link className="btn grande" to={`/p/${final.token}`}>{t.verPrevia}</Link>
             {final.whatsapp_vendedor && (
               <a className="btn btn-secundario grande" href={final.link} target="_blank" rel="noreferrer">
                 <IconeWhatsapp size={17} /> {t.falar}

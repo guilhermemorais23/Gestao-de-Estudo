@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { Check, X } from 'lucide-react'
+import { Check, ExternalLink, RefreshCw, Sparkles, X } from 'lucide-react'
 import { DEMO, api, linkWhatsapp } from '../api'
 import { PASSOS, TONS, montarMensagem, proximoPasso, situacaoContato } from '../mensagens'
 import { IconeWhatsapp } from './Icones'
@@ -14,6 +14,20 @@ export default function WhatsappModal({ usuario, lead: leadInicial, onFechar, on
   const [mensagem, setMensagem] = useState(() => montarMensagem(usuario, leadInicial, proximoPasso(leadInicial), tom))
   const [copiado, setCopiado] = useState(false)
   const [notas, setNotas] = useState(leadInicial.notas || '')
+  const [gerando, setGerando] = useState(false)
+  const [erroPrevia, setErroPrevia] = useState('')
+
+  async function gerarPrevia() {
+    setGerando(true)
+    setErroPrevia('')
+    try {
+      atualizar(await api(`/leads/${lead.id}/previa`, { method: 'POST' }))
+    } catch (e) {
+      setErroPrevia(e.message)
+    } finally {
+      setGerando(false)
+    }
+  }
 
   async function salvarNotas() {
     if (notas !== (lead.notas || '')) {
@@ -100,6 +114,32 @@ export default function WhatsappModal({ usuario, lead: leadInicial, onFechar, on
                 <span className="muted pequeno">
                   {lead.passo ? 'sorteado para este lead' : 'sorteado, você pode trocar antes de enviar'}
                 </span>
+              </div>
+            )}
+            {passo === 'previa' && (
+              <div className="caixa-previa">
+                {lead.previa_gerada_em ? (
+                  <>
+                    <span>
+                      <strong>Prévia pronta.</strong>{' '}
+                      {lead.fonte === 'google' ? 'Com fotos, avaliações e horários do Google.' : 'Com o modelo do segmento.'}
+                    </span>
+                    <Link className="btn-texto" to={`/p/${lead.token}`} target={DEMO ? undefined : '_blank'}><ExternalLink size={15} /> Ver</Link>
+                    <button className="btn-texto" onClick={gerarPrevia} disabled={gerando}><RefreshCw size={15} /> {gerando ? 'Gerando' : 'Gerar de novo'}</button>
+                  </>
+                ) : (
+                  <>
+                    <span>Gere a prévia antes de mandar: o sistema busca fotos, avaliações e horários no Google e escreve os textos.</span>
+                    <button className="btn btn-ia btn-pequeno" onClick={gerarPrevia} disabled={gerando}><Sparkles size={15} /> {gerando ? 'Gerando' : 'Gerar prévia'}</button>
+                  </>
+                )}
+                {erroPrevia && <p className="erro">{erroPrevia}</p>}
+              </div>
+            )}
+            {passo === 'proposta' && (
+              <div className="caixa-previa">
+                <span>A proposta mostra seus pacotes de Configurações, o prazo e o PIX da entrada.</span>
+                <Link className="btn-texto" to={`/proposta/${lead.token}`} target={DEMO ? undefined : '_blank'}><ExternalLink size={15} /> Ver proposta</Link>
               </div>
             )}
             <label>

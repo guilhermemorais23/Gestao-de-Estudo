@@ -21,6 +21,13 @@ def criar_token(user_id: int) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITMO)
 
 
+def usuario_do_token(token: str) -> int | None:
+    try:
+        return int(jwt.decode(token, SECRET_KEY, algorithms=[ALGORITMO])["sub"])
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+
+
 def usuario_atual(
     cred: HTTPAuthorizationCredentials | None = Depends(bearer),
     db: Session = Depends(get_db),

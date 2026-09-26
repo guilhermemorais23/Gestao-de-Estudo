@@ -1,12 +1,15 @@
 from datetime import datetime
 from typing import Any, Literal
 
+import copy
 import json
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+from models.modelos_mensagem import MODELOS_PADRAO
+
 STATUS_LEAD = Literal["novo", "contatado", "respondeu", "questionario", "proposta", "fechado", "perdido"]
-PASSO = Literal["abertura", "questionario", "retorno1", "retorno2"]
+PASSO = Literal["abertura", "previa", "questionario", "proposta", "retorno1", "retorno2"]
 
 
 class RegistroIn(BaseModel):
@@ -31,10 +34,27 @@ class UsuarioOut(BaseModel):
     meta_mensal: int | None = 4
     modelos: dict[str, Any]
 
+    pacotes: list[dict[str, Any]] = []
+    pix_chave: str | None = ""
+    pix_nome: str | None = ""
+    pix_cidade: str | None = ""
+    entrada_percentual: int | None = 50
+
     @field_validator("modelos", mode="before")
     @classmethod
     def _json(cls, v):
-        return json.loads(v) if isinstance(v, str) else (v or {})
+        salvos = json.loads(v) if isinstance(v, str) else (v or {})
+        # completa com os passos novos que a conta ainda não tem
+        completos = copy.deepcopy(MODELOS_PADRAO)
+        for idioma, tons in salvos.items():
+            for tom, passos in tons.items():
+                completos.setdefault(idioma, {}).setdefault(tom, {}).update(passos)
+        return completos
+
+    @field_validator("pacotes", mode="before")
+    @classmethod
+    def _pacotes(cls, v):
+        return json.loads(v) if isinstance(v, str) else (v or [])
 
 
 class ConfigIn(BaseModel):
@@ -43,6 +63,22 @@ class ConfigIn(BaseModel):
     whatsapp: str | None = None
     modelos: dict[str, dict[str, dict[str, str]]] | None = None
     meta_mensal: int | None = Field(default=None, ge=1, le=100)
+    pacotes: list["PacoteIn"] | None = None
+    pix_chave: str | None = Field(default=None, max_length=120)
+    pix_nome: str | None = Field(default=None, max_length=60)
+    pix_cidade: str | None = Field(default=None, max_length=40)
+    entrada_percentual: int | None = Field(default=None, ge=0, le=100)
+
+
+class PacoteIn(BaseModel):
+    id: str = Field(min_length=1, max_length=40)
+    nome: str = Field(min_length=1, max_length=80)
+    preco: float = Field(ge=0)
+    mensalidade: float = Field(default=0, ge=0)
+    prazo_dias: int = Field(default=7, ge=1, le=365)
+    descricao: str = Field(default="", max_length=400)
+    itens: list[str] = Field(default_factory=list, max_length=12)
+    recomendado: bool = False
 
 
 class BuscaIn(BaseModel):
@@ -84,6 +120,13 @@ class LeadOut(BaseModel):
     respondeu: bool
     respondeu_no_passo: int | None
     questionario_enviado: bool
+    previa_gerada_em: datetime | None = None
+    previa_vista_em: datetime | None = None
+    previa_ultima_vista_em: datetime | None = None
+    previa_visualizacoes: int | None = 0
+    proposta_vista_em: datetime | None = None
+    proposta_escolha: str | None = None
+    proposta_escolha_em: datetime | None = None
 
 
 class LeadUpdate(BaseModel):
@@ -143,3 +186,6 @@ class TextosIn(BaseModel):
     diferenciais: list[str] = Field(max_length=5)
     chamada_final: str = Field(max_length=300)
     texto_botao: str = Field(max_length=60)
+
+
+ConfigIn.model_rebuild()

@@ -3,7 +3,9 @@
 Cada lead recebe um tom sorteado (formal ou descontraído) para comparar qual converte mais.
 Passos da sequência:
   abertura      1ª mensagem, curta e sem link, termina em pergunta
-  questionario  só depois que a pessoa responde: manda o link do questionário
+  previa        depois que a pessoa responde: manda a prévia pronta, feita com os dados do Google
+  questionario  opcional: para personalizar a prévia com as informações do dono
+  proposta      manda os pacotes, o prazo e o pagamento
   retorno1      2 a 3 dias sem resposta: traz um argumento novo
   retorno2      5 a 7 dias sem resposta: encerra com educação
 
@@ -11,10 +13,10 @@ Campos que podem ser usados no texto:
   {saudacao} Bom dia / Boa tarde / Boa noite      {empresa} nome do lead
   {meu_nome} {minha_empresa}                      {categoria} ex.: barbearia
   {nota_texto} " com nota 4,9 em 214 avaliações" (vazio se não tiver)
-  {link} link do questionário
+  {link} link do questionário      {link_previa} link da prévia      {link_proposta} link da proposta
 """
 
-PASSOS = ["abertura", "questionario", "retorno1", "retorno2"]
+PASSOS = ["abertura", "previa", "questionario", "proposta", "retorno1", "retorno2"]
 TONS = ["formal", "descontraido"]
 
 MODELOS_PADRAO = {
@@ -24,6 +26,15 @@ MODELOS_PADRAO = {
                 "{saudacao}! Meu nome é {meu_nome}{minha_empresa}, trabalho com criação de sites aqui em "
                 "João Pessoa. Encontrei a {empresa} no Google Maps{nota_texto} e notei que vocês ainda não "
                 "têm um site. Posso enviar uma sugestão de como ficaria? Sem compromisso."
+            ),
+            "previa": (
+                "Obrigado pelo retorno! Montei uma prévia de como ficaria o site da {empresa}, usando as "
+                "fotos e as avaliações que vocês já têm no Google: {link_previa}\n\nDá uma olhada com calma. "
+                "Se quiser, ajusto cores, textos e serviços do jeito de vocês."
+            ),
+            "proposta": (
+                "Segue a proposta para o site da {empresa}, com os pacotes, o prazo e a forma de pagamento: "
+                "{link_proposta}\n\nQualquer dúvida, é só me chamar por aqui."
             ),
             "questionario": (
                 "Obrigado pelo retorno! Para montar a prévia, preciso de algumas informações. "
@@ -44,6 +55,14 @@ MODELOS_PADRAO = {
                 "Oi, tudo bem? Sou o {meu_nome}, faço sites aqui em João Pessoa. Vi a {empresa} no "
                 "Google{nota_texto}. Só senti falta de um site pra galera ver os serviços e chamar vocês "
                 "direto. Posso te mandar uma ideia de como ficaria? Sem compromisso."
+            ),
+            "previa": (
+                "Massa! Já montei uma prévia do site de vocês com as fotos e as avaliações do Google, "
+                "dá uma olhada: {link_previa}\n\nSe quiser mudar alguma coisa, me fala que eu ajusto."
+            ),
+            "proposta": (
+                "Show! Aqui tá a proposta com os pacotes, o prazo e como fica o pagamento: {link_proposta}\n\n"
+                "Qualquer dúvida me chama."
             ),
             "questionario": (
                 "Massa! Responde essas perguntinhas aqui, leva uns 2 minutos, que eu monto a prévia do "
@@ -67,6 +86,11 @@ MODELOS_PADRAO = {
                 "{empresa} on Google Maps{nota_texto} and noticed you don't have a website yet. "
                 "Would you like me to send you a free mockup? No strings attached."
             ),
+            "previa": (
+                "Thanks for getting back to me! I put together a preview of the {empresa} website using the "
+                "photos and reviews you already have on Google: {link_previa}"
+            ),
+            "proposta": "Here is the proposal with packages, timeline and payment: {link_proposta}",
             "questionario": (
                 "Thanks for getting back to me! To build the mockup I need a few details. "
                 "It takes about 2 minutes: {link}"
@@ -85,6 +109,11 @@ MODELOS_PADRAO = {
                 "{empresa} en Google Maps{nota_texto} y vi que todavía no tienen sitio web. "
                 "¿Te envío una propuesta de cómo quedaría? Sin compromiso."
             ),
+            "previa": (
+                "¡Gracias por responder! Armé una vista previa del sitio de {empresa} con las fotos y reseñas "
+                "que ya tienen en Google: {link_previa}"
+            ),
+            "proposta": "Aquí está la propuesta con los paquetes, el plazo y el pago: {link_proposta}",
             "questionario": (
                 "¡Gracias por responder! Para armar la vista previa necesito algunos datos. "
                 "Son 2 minutos: {link}"

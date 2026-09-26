@@ -44,7 +44,7 @@ def eu(user: UserTable = Depends(usuario_atual)):
 @router.put("/config", response_model=UsuarioOut)
 def salvar_config(dados: ConfigIn, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
     for campo, valor in dados.model_dump(exclude_none=True).items():
-        if campo == "modelos":
+        if campo in ("modelos", "pacotes"):
             valor = json.dumps(valor, ensure_ascii=False)
         if campo == "whatsapp":
             valor = telefone_whatsapp(None, valor)

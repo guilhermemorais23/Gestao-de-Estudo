@@ -8,7 +8,8 @@ import Respostas from './pages/Respostas'
 import Resultados from './pages/Resultados'
 import Config from './pages/Config'
 import Questionario from './pages/Questionario'
-import LandingPreview from './pages/LandingPreview'
+import Previa from './pages/Previa'
+import Proposta from './pages/Proposta'
 
 // Na demonstração (página única, sem servidor) as rotas ficam depois do #
 const Router = DEMO ? HashRouter : BrowserRouter
@@ -25,7 +26,9 @@ export default function App() {
 
         {/* Páginas públicas que o cliente abre */}
         <Route path="/q/:token" element={<Questionario />} />
-        <Route path="/lp/:token" element={<LandingPreview />} />
+        <Route path="/p/:token" element={<Previa />} />
+        <Route path="/lp/:token" element={<Previa />} />
+        <Route path="/proposta/:token" element={<Proposta />} />
 
         {/* Painel (precisa de login) */}
         <Route element={<Privado><Layout /></Privado>}>

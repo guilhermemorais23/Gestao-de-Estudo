@@ -84,7 +84,7 @@ export default function TabelaLeads({ leads, setLeads, mostrarGestao = true }) {
                     {l.telefone || <span className="muted">Sem telefone</span>}
                     <span className="sub">{l.whatsapp_provavel ? 'Celular, deve ter WhatsApp' : l.telefone ? 'Parece fixo' : ''}</span>
                     {mostrarGestao && situacaoContato(l) && (
-                      <span className={`situacao ${l.respondeu ? 'ok' : ''}`}>
+                      <span className={`situacao ${l.previa_vista_em || l.proposta_vista_em ? 'quente' : l.respondeu ? 'ok' : ''}`}>
                         {situacaoContato(l)}
                         {l.idioma === 'pt' && l.passo > 0 && <span className="muted">, tom {TONS[l.tom].toLowerCase()}</span>}
                       </span>

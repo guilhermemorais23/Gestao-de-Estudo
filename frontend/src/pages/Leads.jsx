@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import { Clock, Plus, Search } from 'lucide-react'
+import { Clock, Eye, FileText, Plus, Search, ShoppingBag } from 'lucide-react'
+import { haQuanto } from '../mensagens'
 import TabelaLeads, { STATUS } from '../components/TabelaLeads'
 
 export default function Leads() {
@@ -8,6 +9,11 @@ export default function Leads() {
   const [resumo, setResumo] = useState({})
   const [filtro, setFiltro] = useState({ status: '', regiao: '', q: '', pendentes: '' })
   const [novo, setNovo] = useState(null)
+  const [atividade, setAtividade] = useState([])
+
+  useEffect(() => {
+    api('/leads/atividade').then(setAtividade).catch(() => {})
+  }, [])
 
   async function carregar() {
     const params = new URLSearchParams(Object.entries(filtro).filter(([, v]) => v))
@@ -56,6 +62,31 @@ export default function Leads() {
           </button>
         ))}
       </div>
+
+      {atividade.length > 0 && (
+        <div className="atividade">
+          <h2>Atividade dos clientes</h2>
+          <ul>
+            {atividade.slice(0, 5).map((e, i) => {
+              const Icone = { previa: Eye, proposta: FileText, escolha: ShoppingBag }[e.tipo]
+              const texto = {
+                previa: `abriu a prévia${e.detalhe > 1 ? ` (${e.detalhe} vezes)` : ''}`,
+                proposta: 'abriu a proposta',
+                escolha: 'escolheu um pacote na proposta',
+              }[e.tipo]
+              return (
+                <li key={i}>
+                  <Icone size={16} />
+                  <button className="atividade-nome" onClick={() => setFiltro({ ...filtro, q: e.lead.nome, status: '', pendentes: '' })}>{e.lead.nome}</button>
+                  <span>{texto}</span>
+                  <time>{haQuanto(e.quando)}</time>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="muted pequeno">Mande mensagem logo depois que o cliente abre a prévia: é quando ele está pensando no assunto.</p>
+        </div>
+      )}
 
       {resumo._pendentes > 0 && (
         <button

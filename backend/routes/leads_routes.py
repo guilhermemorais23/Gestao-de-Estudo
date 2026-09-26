@@ -1,3 +1,5 @@
+import json
+import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,7 +9,7 @@ from sqlalchemy.orm import Session
 from database.connection import get_db
 from models.tables import BriefingTable, LeadTable, UserTable
 from schemas.schemas import BuscaIn, EnvioIn, LeadManualIn, LeadOut, LeadUpdate
-from services import prospeccao_service
+from services import ia_service, previa_service, prospeccao_service
 from utils.jwt import usuario_atual
 from utils.telefone import provavel_celular, so_digitos, telefone_whatsapp
 
@@ -171,6 +173,69 @@ def _meu_lead(lead_id: int, user: UserTable, db: Session) -> LeadTable:
     return lead
 
 
+@router.get("/atividade")
+def atividade(user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    """O que os clientes fizeram nos últimos 7 dias: abriram a prévia, viram a proposta, escolheram pacote."""
+    desde = _agora() - timedelta(days=7)
+    leads = (
+        db.query(LeadTable)
+        .filter(
+            LeadTable.user_id == user.id,
+            (LeadTable.previa_ultima_vista_em >= desde)
+            | (LeadTable.proposta_vista_em >= desde)
+            | (LeadTable.proposta_escolha_em >= desde),
+        )
+        .all()
+    )
+    eventos = []
+    for l in leads:
+        if l.proposta_escolha_em and l.proposta_escolha_em >= desde:
+            eventos.append({"tipo": "escolha", "quando": l.proposta_escolha_em, "detalhe": l.proposta_escolha})
+        elif l.proposta_vista_em and l.proposta_vista_em >= desde:
+            eventos.append({"tipo": "proposta", "quando": l.proposta_vista_em, "detalhe": None})
+        if l.previa_ultima_vista_em and l.previa_ultima_vista_em >= desde:
+            eventos.append({"tipo": "previa", "quando": l.previa_ultima_vista_em, "detalhe": l.previa_visualizacoes})
+        for e in eventos:
+            e.setdefault("lead", LeadOut.model_validate(l))
+    eventos.sort(key=lambda e: e["quando"], reverse=True)
+    return eventos[:12]
+
+
+@router.post("/{lead_id}/previa", response_model=LeadOut)
+def gerar_previa(lead_id: int, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
+    """Busca fotos, avaliações e horários no Google e escreve os textos da prévia."""
+    lead = _meu_lead(lead_id, user, db)
+    if lead.fonte == "google":
+        detalhes = previa_service.buscar_detalhes_google(lead.place_id)
+        if detalhes:
+            lead.detalhes = json.dumps(detalhes, ensure_ascii=False)
+    detalhes = previa_service.carregar(lead.detalhes) or {}
+    modelo = previa_service.detectar_modelo(lead.categoria, lead.nome)
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        # sem IA configurada: texto padrão do segmento
+        textos = previa_service.textos_reserva(modelo, lead.nome, lead.endereco, lead.categoria)
+    else:
+        textos, _ = ia_service.gerar_textos_previa(
+            {
+                "nome": lead.nome,
+                "categoria": lead.categoria,
+                "bairro": previa_service.bairro_de(lead.endereco),
+                "endereco": lead.endereco,
+                "nota_google": lead.avaliacao,
+                "numero_de_avaliacoes": lead.num_avaliacoes,
+                "resumo_google": detalhes.get("resumo", ""),
+                "horarios": detalhes.get("horarios", []),
+                "avaliacoes_de_clientes": [a["texto"] for a in detalhes.get("avaliacoes", [])],
+            },
+            lead.idioma,
+        )
+    lead.previa_textos = json.dumps(textos, ensure_ascii=False)
+    lead.previa_gerada_em = _agora()
+    db.commit()
+    db.refresh(lead)
+    return lead
+
+
 @router.post("/{lead_id}/envio", response_model=LeadOut)
 def registrar_envio(lead_id: int, dados: EnvioIn, user: UserTable = Depends(usuario_atual), db: Session = Depends(get_db)):
     """Chamado quando você abre o WhatsApp com uma mensagem da sequência."""
@@ -178,7 +243,15 @@ def registrar_envio(lead_id: int, dados: EnvioIn, user: UserTable = Depends(usua
     if dados.whatsapp is not None and so_digitos(dados.whatsapp) != lead.whatsapp:
         lead.whatsapp = so_digitos(dados.whatsapp)
         lead.whatsapp_provavel = provavel_celular(lead.whatsapp) if lead.whatsapp else False
-    if dados.passo == "questionario":
+    if dados.passo in ("previa", "proposta"):
+        if not lead.respondeu:
+            lead.respondeu = True
+            lead.respondeu_no_passo = lead.passo or 1
+        if dados.passo == "proposta" and lead.status not in ("fechado", "perdido"):
+            lead.status = "proposta"
+        elif lead.status in ("novo", "contatado"):
+            lead.status = "respondeu"
+    elif dados.passo == "questionario":
         lead.questionario_enviado = True
         if not lead.respondeu:  # mandou o link, então houve conversa
             lead.respondeu = True

@@ -32,8 +32,9 @@ class TextosLanding(BaseModel):
 
 SISTEMA = """Você escreve os textos de landing pages para pequenos negócios locais.
 
-Receberá as respostas de um questionário preenchido pelo dono do negócio. Escreva os textos da página \
-no idioma pedido, com base só nessas respostas.
+Receberá informações sobre o negócio: as respostas de um questionário preenchido pelo dono ou os dados \
+públicos do negócio no Google Maps (categoria, endereço, horários e avaliações de clientes). Escreva os \
+textos da página no idioma pedido, com base só nessas informações.
 
 Regras:
 - Não invente fatos: nada de anos de experiência, prêmios, números de clientes, preços, depoimentos ou \
@@ -56,20 +57,13 @@ def modelo_configurado() -> str:
     return modelo if modelo in MODELOS_IA else MODELO_PADRAO
 
 
-def gerar_textos_landing(respostas: dict, idioma: str = "pt") -> tuple[dict, str]:
-    """Retorna (textos, modelo_usado)."""
+def _gerar(pedido: str) -> tuple[dict, str]:
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise HTTPException(
             status_code=400,
             detail="ANTHROPIC_API_KEY não configurada no backend/.env. Crie a chave em console.anthropic.com.",
         )
     modelo = modelo_configurado()
-    dados = {k: v for k, v in respostas.items() if not k.startswith("_") and v not in ("", [], None)}
-    pedido = (
-        f"Idioma dos textos: {IDIOMA_NOME.get(idioma, IDIOMA_NOME['pt'])}.\n\n"
-        f"Respostas do questionário:\n{json.dumps(dados, ensure_ascii=False, indent=2)}"
-    )
-
     cliente = anthropic.Anthropic()
     try:
         resposta = cliente.messages.parse(
@@ -92,5 +86,26 @@ def gerar_textos_landing(respostas: dict, idioma: str = "pt") -> tuple[dict, str
         raise HTTPException(status_code=422, detail="A IA não conseguiu gerar os textos. Revise as respostas e tente de novo.")
     if resposta.stop_reason == "max_tokens":
         raise HTTPException(status_code=502, detail="Os textos ficaram longos demais e foram cortados. Tente de novo.")
-
     return resposta.parsed_output.model_dump(), modelo
+
+
+def gerar_textos_landing(respostas: dict, idioma: str = "pt") -> tuple[dict, str]:
+    """Textos a partir do questionário. Retorna (textos, modelo_usado)."""
+    dados = {k: v for k, v in respostas.items() if not k.startswith("_") and v not in ("", [], None)}
+    pedido = (
+        f"Idioma dos textos: {IDIOMA_NOME.get(idioma, IDIOMA_NOME['pt'])}.\n\n"
+        f"Respostas do questionário:\n{json.dumps(dados, ensure_ascii=False, indent=2)}"
+    )
+    return _gerar(pedido)
+
+
+def gerar_textos_previa(dados_lead: dict, idioma: str = "pt") -> tuple[dict, str]:
+    """Textos a partir do que o Google Maps mostra sobre o negócio (antes de qualquer questionário)."""
+    pedido = (
+        f"Idioma dos textos: {IDIOMA_NOME.get(idioma, IDIOMA_NOME['pt'])}.\n\n"
+        "Ainda não há questionário. Estes são os dados públicos do negócio no Google Maps. As avaliações "
+        "de clientes são a melhor fonte para os diferenciais: use só o que elas dizem de fato, sem copiar "
+        "frases inteiras nem citar nomes de clientes.\n\n"
+        f"{json.dumps(dados_lead, ensure_ascii=False, indent=2)}"
+    )
+    return _gerar(pedido)

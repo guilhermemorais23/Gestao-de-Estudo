@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
+import { Plus, Trash2 } from 'lucide-react'
 import { api, urlPublica } from '../api'
 import { PASSOS, TONS } from '../mensagens'
 
@@ -11,7 +12,16 @@ export default function Config() {
   const [form, setForm] = useState({
     nome: usuario.nome, empresa: usuario.empresa || '', whatsapp: usuario.whatsapp || '',
     modelos: usuario.modelos, meta_mensal: usuario.meta_mensal || 4,
+    pacotes: usuario.pacotes || [], pix_chave: usuario.pix_chave || '', pix_nome: usuario.pix_nome || '',
+    pix_cidade: usuario.pix_cidade || '', entrada_percentual: usuario.entrada_percentual ?? 50,
   })
+
+  function setPacote(i, campo, valor) {
+    setForm({ ...form, pacotes: form.pacotes.map((p, j) => (j === i ? { ...p, [campo]: valor } : campo === 'recomendado' ? { ...p, recomendado: false } : p)) })
+  }
+  function novoPacote() {
+    setForm({ ...form, pacotes: [...form.pacotes, { id: `pacote${Date.now()}`, nome: 'Novo pacote', preco: 0, mensalidade: 0, prazo_dias: 7, descricao: '', itens: [], recomendado: false }] })
+  }
   const [aba, setAba] = useState('pt.descontraido')
   const [idiomaAba, tomAba] = aba.split('.')
 
@@ -27,7 +37,8 @@ export default function Config() {
 
   async function salvar(e) {
     e.preventDefault()
-    setUsuario(await api('/auth/config', { method: 'PUT', body: form }))
+    const pacotes = form.pacotes.map((p) => ({ ...p, itens: p.itens.map((x) => x.trim()).filter(Boolean) }))
+    setUsuario(await api('/auth/config', { method: 'PUT', body: { ...form, pacotes } }))
     setSalvo(true)
     setTimeout(() => setSalvo(false), 2000)
   }
@@ -83,6 +94,40 @@ export default function Config() {
             </label>
           ))}
         </div>
+        <h2>Pacotes da proposta</h2>
+        <p className="muted">É o que o cliente vê na página de proposta. O pacote marcado como recomendado aparece em destaque.</p>
+        <div className="pacotes-editor">
+          {form.pacotes.map((p, i) => (
+            <fieldset key={p.id} className="pacote-editor">
+              <div className="pacote-linha">
+                <label className="cresce" htmlFor={`pn-${i}`}>Nome<input id={`pn-${i}`} value={p.nome} onChange={(e) => setPacote(i, 'nome', e.target.value)} /></label>
+                <label htmlFor={`pp-${i}`}>Preço (R$)<input id={`pp-${i}`} type="number" min="0" step="10" value={p.preco} onChange={(e) => setPacote(i, 'preco', Number(e.target.value))} /></label>
+                <label htmlFor={`pm-${i}`}>Mensalidade (R$)<input id={`pm-${i}`} type="number" min="0" step="10" value={p.mensalidade} onChange={(e) => setPacote(i, 'mensalidade', Number(e.target.value))} /></label>
+                <label htmlFor={`pz-${i}`}>Prazo (dias úteis)<input id={`pz-${i}`} type="number" min="1" value={p.prazo_dias} onChange={(e) => setPacote(i, 'prazo_dias', Number(e.target.value))} /></label>
+              </div>
+              <label htmlFor={`pd-${i}`}>Descrição<input id={`pd-${i}`} value={p.descricao} onChange={(e) => setPacote(i, 'descricao', e.target.value)} /></label>
+              <label htmlFor={`pi-${i}`}>O que está incluso (um por linha)
+                <textarea id={`pi-${i}`} rows={4} value={p.itens.join('\n')} onChange={(e) => setPacote(i, 'itens', e.target.value.split('\n'))} />
+              </label>
+              <div className="pacote-rodape">
+                <label className="check"><input type="radio" name="recomendado" checked={!!p.recomendado} onChange={() => setPacote(i, 'recomendado', true)} /> Recomendado</label>
+                <button type="button" className="btn-texto perigo" onClick={() => setForm({ ...form, pacotes: form.pacotes.filter((_, j) => j !== i) })}><Trash2 size={15} /> Remover</button>
+              </div>
+            </fieldset>
+          ))}
+          <button type="button" className="btn-texto" onClick={novoPacote}><Plus size={15} /> Adicionar pacote</button>
+        </div>
+
+        <h2>Pagamento com PIX</h2>
+        <p className="muted">Com a chave preenchida, a proposta mostra o QR code e o código copia e cola da entrada, já com o valor.</p>
+        <div className="filtros">
+          <label htmlFor="pix-chave">Chave PIX<input id="pix-chave" value={form.pix_chave} onChange={set('pix_chave')} placeholder="CPF, CNPJ, e-mail, celular ou chave aleatória" /></label>
+          <label htmlFor="pix-nome">Nome do recebedor<input id="pix-nome" value={form.pix_nome} onChange={set('pix_nome')} placeholder="Como aparece no banco" /></label>
+          <label htmlFor="pix-cidade">Cidade<input id="pix-cidade" value={form.pix_cidade} onChange={set('pix_cidade')} placeholder="João Pessoa" /></label>
+          <label className="curto" htmlFor="entrada">Entrada (%)<input id="entrada" type="number" min="0" max="100" value={form.entrada_percentual} onChange={(e) => setForm({ ...form, entrada_percentual: Number(e.target.value) })} /></label>
+        </div>
+        <p className="muted pequeno">Celular como chave PIX vai com +55 e DDD, por exemplo +5583999990000.</p>
+
         <button className="btn">{salvo ? 'Salvo' : 'Salvar alterações'}</button>
       </form>
 

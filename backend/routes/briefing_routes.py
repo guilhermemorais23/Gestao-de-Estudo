@@ -117,15 +117,3 @@ def responder_questionario(token: str, dados: BriefingIn, db: Session = Depends(
     db.commit()
     db.refresh(b)
     return {"token": b.token, "whatsapp_vendedor": user.whatsapp or ""}
-
-
-@publico.get("/lp/{token}")
-def dados_landing(token: str, db: Session = Depends(get_db)):
-    b = db.query(BriefingTable).filter_by(token=token).first()
-    if b is None:
-        raise HTTPException(status_code=404, detail="Prévia não encontrada")
-    user = db.get(UserTable, b.user_id)
-    return {
-        "briefing": _para_out(b),
-        "vendedor": {"nome": user.nome, "empresa": user.empresa, "whatsapp": user.whatsapp},
-    }

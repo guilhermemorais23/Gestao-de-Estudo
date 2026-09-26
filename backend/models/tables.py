@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 
 from database.connection import Base
 from models.modelos_mensagem import MODELOS_PADRAO, TONS
+from models.pacotes import PACOTES_PADRAO
 
 
 def agora():
@@ -20,6 +21,10 @@ def novo_token():
 
 def modelos_padrao():
     return json.dumps(MODELOS_PADRAO, ensure_ascii=False)
+
+
+def pacotes_padrao():
+    return json.dumps(PACOTES_PADRAO, ensure_ascii=False)
 
 
 def sortear_tom():
@@ -37,6 +42,12 @@ class UserTable(Base):
     whatsapp = Column(String(30), default="")
     token_publico = Column(String(32), unique=True, default=novo_token)
     meta_mensal = Column(Integer, default=4)  # clientes por mês
+    # Proposta e pagamento
+    pacotes = Column(Text, default=pacotes_padrao)  # JSON: lista de pacotes
+    pix_chave = Column(String(120), default="")
+    pix_nome = Column(String(60), default="")
+    pix_cidade = Column(String(40), default="JOAO PESSOA")
+    entrada_percentual = Column(Integer, default=50)
     modelos = Column(Text, default=modelos_padrao)  # JSON: idioma -> tom -> passo -> texto
     criado_em = Column(DateTime, default=agora)
 
@@ -74,6 +85,16 @@ class LeadTable(Base):
     respondeu = Column(Boolean, default=False)
     respondeu_no_passo = Column(Integer, nullable=True)  # qual mensagem fez a pessoa responder
     questionario_enviado = Column(Boolean, default=False)
+    # Prévia automática (dados do Google + textos) e acompanhamento
+    detalhes = Column(Text, nullable=True)  # JSON: fotos, avaliações, horários
+    previa_textos = Column(Text, nullable=True)  # JSON
+    previa_gerada_em = Column(DateTime, nullable=True)
+    previa_vista_em = Column(DateTime, nullable=True)  # primeira vez que o cliente abriu
+    previa_ultima_vista_em = Column(DateTime, nullable=True)
+    previa_visualizacoes = Column(Integer, default=0)
+    proposta_vista_em = Column(DateTime, nullable=True)
+    proposta_escolha = Column(String(40), nullable=True)
+    proposta_escolha_em = Column(DateTime, nullable=True)
     notas = Column(Text, default="")
     token = Column(String(32), unique=True, default=novo_token)
     criado_em = Column(DateTime, default=agora)

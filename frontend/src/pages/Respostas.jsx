@@ -45,7 +45,7 @@ export default function Respostas() {
       {!lista.length && <p className="vazio">Ninguém respondeu ainda. Quando alguém responder o questionário, aparece aqui.</p>}
       <div className="respostas-lista">
         {lista.map((b) => {
-          const lp = urlPublica(`/lp/${b.token}`)
+          const lp = urlPublica(`/p/${b.token}`)
           const msg = `Oi ${b.contato_nome}! Aqui é ${usuario.nome}. Fiz uma prévia do site da ${b.empresa}, dá uma olhada: ${lp}`
           const estaAberto = aberto === b.id
           return (
@@ -75,7 +75,7 @@ export default function Respostas() {
                   <EditorTextos key={b.id} briefing={b} ia={ia} onAtualizado={atualizar} />
                   <div className="acoes">
                     {DEMO ? (
-                      <Link className="btn" to={`/lp/${b.token}`}><ExternalLink size={16} /> Ver prévia do site</Link>
+                      <Link className="btn" to={`/p/${b.token}`}><ExternalLink size={16} /> Ver prévia do site</Link>
                     ) : (
                       <a className="btn" href={lp} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Ver prévia do site</a>
                     )}

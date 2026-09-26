@@ -6,23 +6,28 @@ para fechar a venda de sites e sistemas.
 
 ## Fluxo
 
-1. **Prospectar** — busca no Google Maps (Places API) ou OpenStreetMap, por segmento + cidade.
-   Só ficam as empresas **sem site** (ou com só Instagram/Facebook). Cada uma recebe um **score 0–100**
-   (sem site, celular com WhatsApp, muitas avaliações = lead quente).
-2. **Meus leads** — mini-CRM com funil: novo → contatado → respondeu → proposta → fechado/perdido, com notas.
-3. **Abordagem em sequência** — 1ª mensagem (curta, sem link) → questionário (só depois que a pessoa
-   responde) → retorno 1 (2 dias sem resposta) → retorno 2 (encerramento). Cada lead recebe um **tom
-   sorteado** (formal ou descontraído) para comparar qual converte mais. Tudo abre no WhatsApp via `wa.me`
-   e **QR code**, e cada envio fica registrado. O painel avisa quem está esperando retorno.
-4. **Questionário** — o cliente responde pelo link (`/q/<token>`); o lead muda para "respondeu".
-5. **Textos com IA** — em Respostas, o botão "Gerar textos com IA" usa o Claude Haiku 4.5 para escrever
-   título, serviços, diferenciais e chamada da prévia a partir do questionário. Você revisa e salva.
-   Para outro modelo no futuro, inclua em `MODELOS_IA` (`backend/services/ia_service.py`) e use `IA_MODELO`.
-6. **Prévia** — as respostas viram uma landing page (`/lp/<token>`) com cores, serviços, mapa e botão
-   de WhatsApp. O cliente é levado ao **seu** WhatsApp com o resumo das respostas.
-7. **Resultados** — funil por tom (quantos responderam, fizeram o questionário, fecharam), em qual
-   mensagem as pessoas respondem ou param, e uma calculadora de metas (preço, clientes/mês, mensalidade).
-8. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, com mensagem em inglês ou espanhol.
+1. **Prospectar** — busca no Google Maps (Places API) ou OpenStreetMap, por segmento, cidade e bairro.
+   Só ficam as empresas **sem site** (ou com só Instagram/Facebook), com um **potencial de 0 a 100**.
+2. **Abordar** — sequência no WhatsApp com **tom sorteado** (formal ou descontraído) para comparar:
+   1ª mensagem (sem link) → **prévia** → **proposta**, com retornos se a pessoa não responder.
+   Tudo via `wa.me` e **QR code**; cada envio fica registrado.
+3. **Prévia automática** — o botão "Gerar prévia" busca **fotos, avaliações e horários** do lugar no
+   Google e escreve os textos com IA (Claude Haiku 4.5). O visual muda por segmento (beleza, saúde,
+   comida, serviços) e o cliente vê num celular ou no computador (`/p/<token>`).
+4. **Atividade** — você é avisado quando o cliente **abre a prévia** (quantas vezes), abre a proposta ou
+   escolhe um pacote. Suas próprias visitas logado não contam.
+5. **Proposta** — página com seus pacotes, prazo e o **PIX da entrada** (QR code e copia e cola, já com o
+   valor), em `/proposta/<token>`. Pacotes e chave PIX em Configurações.
+6. **Questionário (opcional)** — o dono responde em `/q/<token>` para personalizar a prévia.
+7. **Resultados** — funil por tom, onde as pessoas param e calculadora de metas.
+8. **Outras regiões / exterior** — mesma busca em qualquer cidade/país, mensagens em inglês ou espanhol.
+
+### Custos das APIs
+
+- Busca de empresas: faixa Pro/Enterprise do Google Places (o campo de site entra na conta).
+- Prévia com fotos e avaliações: faixa **Enterprise + Atmosphere** do Google, uma chamada por prévia
+  gerada (algo na casa de US$ 0,02–0,04), mais cada foto exibida. Confira a tabela atual do Google.
+- Textos com IA: frações de centavo de dólar por texto com o Haiku 4.5.
 
 ## Rodando
 

@@ -2,6 +2,7 @@
 // Ativado com `npm run build:demo` (VITE_DEMO=1).
 
 import MODELOS from './modelos.json'
+import PACOTES from './pacotes.json'
 
 let seq = 100
 const tok = () => Math.random().toString(36).slice(2, 11)
@@ -10,6 +11,7 @@ const agora = () => new Date().toISOString().replace('Z', '')
 const usuario = {
   id: 1, nome: 'Guilherme', email: 'demo@prospecta.pb', empresa: 'GM Sites', whatsapp: '5583999990000',
   token_publico: 'geral', meta_mensal: 4, modelos: structuredClone(MODELOS),
+  pacotes: structuredClone(PACOTES), pix_chave: 'demo@prospecta.pb', pix_nome: 'GM Sites', pix_cidade: 'Joao Pessoa', entrada_percentual: 50,
 }
 
 const diasAtras = (n) => new Date(Date.now() - n * 86400000).toISOString().replace('Z', '')
@@ -19,16 +21,18 @@ function lead(d) {
     id: ++seq, fonte: 'google', regiao: 'pb', idioma: 'pt', cidade: 'João Pessoa - PB', website: '',
     so_rede_social: false, status: 'novo', notas: '', token: tok(), criado_em: agora(),
     maps_url: 'https://www.google.com/maps', tom: Math.random() < 0.5 ? 'formal' : 'descontraido',
-    passo: 0, ultimo_envio_em: null, respondeu: false, respondeu_no_passo: null, questionario_enviado: false, ...d,
+    passo: 0, ultimo_envio_em: null, respondeu: false, respondeu_no_passo: null, questionario_enviado: false,
+    previa_gerada_em: null, previa_vista_em: null, previa_ultima_vista_em: null, previa_visualizacoes: 0,
+    proposta_vista_em: null, proposta_escolha: null, proposta_escolha_em: null, ...d,
   }
 }
 
 let leads = [
   lead({ nome: 'Barbearia Cabo Branco (exemplo)', categoria: 'Barbearia', endereco: 'Av. Cabo Branco, Cabo Branco', telefone: '(83) 99812-4410', whatsapp: '5583998124410', whatsapp_provavel: true, avaliacao: 4.9, num_avaliacoes: 214, score: 95 }),
-  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'contatado', notas: 'Dona pediu pra chamar depois das 18h', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(3) }),
+  lead({ nome: 'Studio Bella Estética (exemplo)', categoria: 'Clínica de estética', endereco: 'Av. Gov. Flávio Ribeiro Coutinho, Manaíra', telefone: '(83) 98111-2233', whatsapp: '5583981112233', whatsapp_provavel: true, website: 'https://instagram.com/studiobella', so_rede_social: true, avaliacao: 4.6, num_avaliacoes: 88, score: 77, status: 'respondeu', notas: 'Dona pediu pra chamar depois das 18h', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(1), respondeu: true, respondeu_no_passo: 1, previa_gerada_em: diasAtras(1), previa_vista_em: diasAtras(0.2), previa_ultima_vista_em: diasAtras(0.08), previa_visualizacoes: 3 }),
   lead({ nome: 'Pet Amigo Bancários (exemplo)', categoria: 'Pet shop', endereco: 'R. Bancário Sérgio Guerra, Bancários', telefone: '(83) 3222-4455', whatsapp: '558332224455', whatsapp_provavel: false, avaliacao: 4.2, num_avaliacoes: 40, score: 45, tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(5) }),
   lead({ nome: 'Oficina do Tonho (exemplo)', categoria: 'Oficina mecânica', endereco: 'Av. Dois de Fevereiro, Rangel', telefone: '(83) 98870-1122', whatsapp: '5583988701122', whatsapp_provavel: true, avaliacao: 4.7, num_avaliacoes: 131, score: 92, status: 'questionario', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
-  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta', tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(6), respondeu: true, respondeu_no_passo: 2, questionario_enviado: true }),
+  lead({ nome: 'Sabor da Praia Restaurante (exemplo)', categoria: 'Restaurante', endereco: 'Av. Almirante Tamandaré, Tambaú', telefone: '(83) 99654-7788', whatsapp: '5583996547788', whatsapp_provavel: true, website: 'https://instagram.com/sabordapraia', so_rede_social: true, avaliacao: 4.4, num_avaliacoes: 402, score: 85, status: 'proposta', tom: 'formal', passo: 2, ultimo_envio_em: diasAtras(2), respondeu: true, respondeu_no_passo: 2, questionario_enviado: true, previa_gerada_em: diasAtras(3), previa_vista_em: diasAtras(2.5), previa_ultima_vista_em: diasAtras(1.5), previa_visualizacoes: 2, proposta_vista_em: diasAtras(0.5), proposta_escolha: 'landing_manutencao', proposta_escolha_em: diasAtras(0.4) }),
   lead({ nome: 'Clínica Sorriso Bessa (exemplo)', categoria: 'Dentista', endereco: 'Av. Argemiro de Figueiredo, Bessa', telefone: '(83) 99301-5566', whatsapp: '5583993015566', whatsapp_provavel: true, avaliacao: 5.0, num_avaliacoes: 67, score: 91, status: 'fechado', notas: 'Landing page + agendamento. R$ 1.200', tom: 'descontraido', passo: 1, ultimo_envio_em: diasAtras(12), respondeu: true, respondeu_no_passo: 1, questionario_enviado: true }),
   lead({ nome: 'Sunny Nails Studio (example)', categoria: 'Nail salon', endereco: 'Brickell, Miami, FL', cidade: 'Miami, USA', regiao: 'exterior', idioma: 'en', telefone: '+1 305-555-0142', whatsapp: '13055550142', whatsapp_provavel: true, avaliacao: 4.8, num_avaliacoes: 156, score: 88 }),
 ]
@@ -121,6 +125,52 @@ function textosExemplo(b) {
   }
 }
 
+const AVALIACOES_EXEMPLO = {
+  beleza: ['Melhor corte que já fiz no bairro, e o atendimento é pontual.', 'Ambiente top, preço justo e sempre saio satisfeito.', 'Marquei pelo WhatsApp e fui atendido na hora.'],
+  saude: ['Atendimento muito humano, explicaram tudo com calma.', 'Consultório limpo e organizado, fui atendida no horário.', 'Recomendo, profissionais atenciosos.'],
+  comida: ['Comida caprichada e chegou quentinha.', 'O melhor da região, preço honesto.', 'Pedi pelo WhatsApp e foi super rápido.'],
+  servicos: ['Resolveram rápido e com preço justo.', 'Orçamento na hora, sem enrolação.', 'Serviço de confiança, já indiquei para a família.'],
+}
+const TEXTOS_EXEMPLO = {
+  beleza: (n, b) => ({ titulo: `${n}: seu horário, do seu jeito`, subtitulo: `Corte e barba com hora marcada em ${b}. Sem fila, sem espera.`, sobre: `A ${n} é conhecida no bairro pelo atendimento pontual e pelo capricho em cada detalhe. Marque pelo WhatsApp e chegue na hora certa.`, servicos: [{ nome: 'Corte masculino', descricao: 'Tesoura ou máquina, do clássico ao degradê.' }, { nome: 'Barba', descricao: 'Toalha quente, navalha e acabamento.' }, { nome: 'Corte e barba', descricao: 'O combo mais pedido da casa.' }, { nome: 'Sobrancelha', descricao: 'Acabamento rápido e natural.' }], diferenciais: ['Horário marcado, sem fila', 'Atendimento pontual, segundo os clientes', 'Agendamento direto pelo WhatsApp'], chamada_final: 'Garanta seu horário para esta semana.', texto_botao: 'Agendar horário' }),
+  saude: (n, b) => ({ titulo: `Cuidado de perto, em ${b}`, subtitulo: 'Agende sua avaliação pelo WhatsApp e tire suas dúvidas antes de vir.', sobre: `Na ${n}, cada paciente é atendido com calma e com explicação clara de cada etapa do tratamento.`, servicos: [{ nome: 'Avaliação', descricao: 'Primeira consulta para entender o que você precisa.' }, { nome: 'Limpeza', descricao: 'Prevenção e cuidado de rotina.' }, { nome: 'Clareamento', descricao: 'Sorriso mais claro com acompanhamento.' }], diferenciais: ['Atendimento no horário marcado', 'Explicação clara antes de cada procedimento', 'Agendamento pelo WhatsApp'], chamada_final: 'Marque sua avaliação ainda esta semana.', texto_botao: 'Agendar consulta' }),
+  comida: (n, b) => ({ titulo: `${n}, direto para a sua mesa`, subtitulo: `Comida caseira feita na hora em ${b}. Peça pelo WhatsApp.`, sobre: `A ${n} serve o que o bairro gosta: prato bem servido, tempero de casa e entrega rápida.`, servicos: [{ nome: 'Prato do dia', descricao: 'Arroz, feijão, salada e a mistura da vez.' }, { nome: 'Peixe grelhado', descricao: 'Peixe fresco com acompanhamentos.' }, { nome: 'Sucos naturais', descricao: 'Frutas da estação, feitos na hora.' }], diferenciais: ['Comida quentinha, segundo os clientes', 'Pedido rápido pelo WhatsApp', 'Porções bem servidas'], chamada_final: 'Bateu a fome? Faça seu pedido agora.', texto_botao: 'Fazer pedido' }),
+  servicos: (n, b) => ({ titulo: `${n}: serviço bem feito em ${b}`, subtitulo: 'Explique o que precisa pelo WhatsApp e receba o orçamento antes de começar.', sobre: `A ${n} atende ${b} e região com serviço de confiança e preço combinado antes.`, servicos: [{ nome: 'Orçamento', descricao: 'Sem compromisso, pelo WhatsApp.' }, { nome: 'Manutenção', descricao: 'Revisão e troca de peças.' }, { nome: 'Serviço completo', descricao: 'Do diagnóstico à entrega.' }], diferenciais: ['Orçamento antes de começar', 'Preço justo, segundo os clientes', 'Resposta rápida no WhatsApp'], chamada_final: 'Mande uma mensagem e receba seu orçamento hoje.', texto_botao: 'Pedir orçamento' }),
+}
+function modeloDe(texto) {
+  const t = (texto || '').toLowerCase()
+  if (/barb|sal[aã]o|est[eé]tica|manicure|sobrancelha|tatuag|nail|hair/.test(t)) return 'beleza'
+  if (/dent|cl[ií]nica|fisio|psic|nutri|academia|m[eé]dic|clinic/.test(t)) return 'saude'
+  if (/restaur|lanch|pizz|hamb|a[cç]a[ií]|padaria|confeit|caf[eé]|bar\b|food/.test(t)) return 'comida'
+  return 'servicos'
+}
+function bairroDe(endereco) {
+  const partes = (endereco || '').split(',').map((p) => p.trim())
+  return partes.find((p) => p && !/\d/.test(p) && !/^(av|avenida|rua|r|travessa|rodovia|alameda)\.?\s/i.test(p)) || 'seu bairro'
+}
+function montarPrevia(token) {
+  let l = leads.find((x) => x.token === token)
+  let b = l ? briefings.find((x) => x.lead_id === l.id) : briefings.find((x) => x.token === token)
+  if (!l && b) l = leads.find((x) => x.id === b.lead_id)
+  if (!l && !b) throw new Error('Link inválido ou expirado')
+  const r = b?.respostas || {}
+  const empresa = (b?.empresa || l.nome).replace(/\s*\((exemplo|example)\)$/i, '')
+  const categoria = r.segmento || l?.categoria || ''
+  const modelo = modeloDe(`${categoria} ${l?.categoria || ''}`)
+  const endereco = r.endereco || l?.endereco || ''
+  const bairro = bairroDe(endereco.replace(/^[^,]*\d[^,]*,/, ''))
+  const textos = b?.textos || TEXTOS_EXEMPLO[modelo](empresa, bairro)
+  return {
+    token, modelo, idioma: r._idioma || l?.idioma || 'pt', empresa, categoria, bairro, endereco,
+    whatsapp: b?.contato_whatsapp || l?.whatsapp || '', avaliacao: l?.avaliacao, num_avaliacoes: l?.num_avaliacoes || 0,
+    maps_url: 'https://www.google.com/maps', cores: r.cores || '', instagram: r.instagram || '',
+    horarios: ['segunda-feira: 09:00–19:00', 'terça-feira: 09:00–19:00', 'quarta-feira: 09:00–19:00', 'quinta-feira: 09:00–19:00', 'sexta-feira: 09:00–20:00', 'sábado: 08:00–14:00', 'domingo: Fechado'],
+    fotos: [1, 2, 3, 4, 5].map(() => ({ url: null })),
+    avaliacoes: AVALIACOES_EXEMPLO[modelo].map((texto, i) => ({ autor: `Cliente de exemplo ${i + 1}`, nota: 5, texto, quando: i ? `há ${i + 1} semanas` : 'há 1 semana' })),
+    textos, vendedor: { nome: usuario.nome, empresa: usuario.empresa, whatsapp: usuario.whatsapp },
+  }
+}
+
 function pendente(l) {
   if (l.respondeu || ['fechado', 'perdido'].includes(l.status) || !l.ultimo_envio_em) return false
   const dias = (Date.now() - new Date(l.ultimo_envio_em + 'Z').getTime()) / 86400000
@@ -163,6 +213,35 @@ export async function mockApi(caminho, method, body) {
   }
 
   if (rota === '/leads/buscar') return simularBusca(body)
+  if (rota === '/leads/atividade') {
+    const ev = []
+    for (const l of leads) {
+      if (l.proposta_escolha_em) ev.push({ tipo: 'escolha', quando: l.proposta_escolha_em, lead: l })
+      if (l.previa_ultima_vista_em) ev.push({ tipo: 'previa', quando: l.previa_ultima_vista_em, detalhe: l.previa_visualizacoes, lead: l })
+    }
+    return ev.sort((a, b) => (a.quando < b.quando ? 1 : -1))
+  }
+  if (partes[0] === 'leads' && partes[2] === 'previa') {
+    await espera(1500)
+    return alterar(Number(partes[1]), (l) => { l.previa_gerada_em = agora() })
+  }
+  if (partes[0] === 'publico' && partes[1] === 'previa') return montarPrevia(partes[2])
+  if (partes[0] === 'publico' && partes[1] === 'proposta') {
+    const l = leads.find((x) => x.token === partes[2])
+    if (partes[3] === 'escolha') {
+      if (l) Object.assign(l, { proposta_escolha: body.pacote, proposta_escolha_em: agora(), status: 'proposta' })
+      return { ok: true }
+    }
+    const b = l ? briefings.find((x) => x.lead_id === l.id) : briefings.find((x) => x.token === partes[2])
+    return {
+      token: partes[2], empresa: (b?.empresa || l?.nome || '').replace(/\s*\((exemplo|example)\)$/i, ''), contato: b?.contato_nome || '',
+      vendedor: { nome: usuario.nome, empresa: usuario.empresa, whatsapp: usuario.whatsapp },
+      pacotes: usuario.pacotes, recomendado: (usuario.pacotes.find((p) => p.recomendado) || usuario.pacotes[0])?.id,
+      escolha: l?.proposta_escolha || null, entrada_percentual: usuario.entrada_percentual,
+      pix: usuario.pix_chave ? { chave: usuario.pix_chave, nome: usuario.pix_nome, cidade: usuario.pix_cidade, txid: partes[2].replace(/[^A-Za-z0-9]/g, '').slice(0, 25) } : null,
+      valida_ate: new Date(Date.now() + 7 * 86400000).toISOString(),
+    }
+  }
   if (rota === '/leads/resumo') {
     const r = leads.reduce((acc, l) => ({ ...acc, [l.status]: (acc[l.status] || 0) + 1 }), {})
     return { ...r, _pendentes: leads.filter(pendente).length, _fechados_mes: r.fechado || 0 }
@@ -257,11 +336,6 @@ export async function mockApi(caminho, method, body) {
       if (['novo', 'contatado', 'respondeu'].includes(l.status)) l.status = 'questionario'
     }
     return { token: b.token, whatsapp_vendedor: usuario.whatsapp }
-  }
-  if (partes[0] === 'publico' && partes[1] === 'lp') {
-    const b = briefings.find((x) => x.token === partes[2])
-    if (!b) throw new Error('Prévia não encontrada')
-    return { briefing: b, vendedor: { nome: usuario.nome, empresa: usuario.empresa, whatsapp: usuario.whatsapp } }
   }
   throw new Error(`Rota de demonstração não encontrada: ${rota}`)
 }
